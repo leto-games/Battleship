@@ -23,6 +23,15 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
+    - name: Cache APT Packages (Linux)
+      if: runner.os == 'Linux'
+      uses: actions/cache@v4
+      with:
+        path: /var/cache/apt/archives
+        key: ${{ runner.os }}-apt-${{ hashFiles('.github/workflows/build.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-apt-
+
     - name: Install Dependencies (Linux)
       if: runner.os == 'Linux'
       run: sudo apt-get install -y -q ninja-build gcc-arm-none-eabi
