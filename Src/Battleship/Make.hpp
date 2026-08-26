@@ -10,7 +10,6 @@
 
 #include "GamesCollectionExport.h"
 #include <GamesSupport/BaseGame.hpp>
-#include <GamesSupport/GameInfo.hpp>
 #include <LetoAPI_V1/Application/LetoApplication_V1.h>
 
 
