@@ -21,9 +21,9 @@ if("${PRESET_DEFINE_MACRO}" STREQUAL "__STM32__")
 else()
 	project("Battleship" C CXX)
 	add_library("${PROJECT_NAME}" SHARED "${C_CPP_COURCES}")
-	if(LETO_PATH)
+	if(DEFINED ENV{LETO_PATH})
 		target_compile_definitions(${PROJECT_NAME} PRIVATE LETOCORE_SHARED)
-		set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${LETO_PATH}/leto-console/apps/${PRESET_NAME})
+		set(CMAKE_RUNTIME_OUTPUT_DIRECTORY $ENV{LETO_PATH}/leto-console/apps/${PRESET_NAME})
 	endif()
 endif()
 
@@ -109,16 +109,16 @@ elseif (${PRESET_DEFINE_MACRO} STREQUAL "__TERMUX__")
 
 endif ()
 
-if(LETO_PATH)
-    message(STATUS "[${PROJECT_NAME}] Найдена переменная LETO_PATH. Подключаем готовые артефакты...")
+if(DEFINED ENV{LETO_PATH})
+    message(STATUS "[${PROJECT_NAME}] Найдена переменная окружения LETO_PATH. Подключаем готовые артефакты...")
 
-	target_link_directories(${PROJECT_NAME} PUBLIC "${LETO_PATH}/LetoAPI/lib/${CORE_BUILD_PRESET}")
-	target_link_directories(${PROJECT_NAME} PUBLIC "${LETO_PATH}/LetoCore/lib/${CORE_BUILD_PRESET}")
+	target_link_directories(${PROJECT_NAME} PUBLIC "$ENV{LETO_PATH}/LetoAPI/lib/${CORE_BUILD_PRESET}")
+	target_link_directories(${PROJECT_NAME} PUBLIC "$ENV{LETO_PATH}/LetoCore/lib/${CORE_BUILD_PRESET}")
 
-	target_include_directories(${PROJECT_NAME} PUBLIC "${LETO_PATH}/LetoAPI/include")
-	target_include_directories(${PROJECT_NAME} PUBLIC "${LETO_PATH}/LetoCore/include")
+	target_include_directories(${PROJECT_NAME} PUBLIC "$ENV{LETO_PATH}/LetoAPI/include")
+	target_include_directories(${PROJECT_NAME} PUBLIC "$ENV{LETO_PATH}/LetoCore/include")
 else()
-    message(STATUS "[${PROJECT_NAME}] Переменная LETO_PATH не найдена. Серверная сборка через FetchContent...")
+    message(STATUS "[${PROJECT_NAME}] Переменная окружения LETO_PATH не найдена. Серверная сборка через FetchContent...")
 
 	include(FetchContent)
     FetchContent_Declare(
