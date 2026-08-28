@@ -23,7 +23,6 @@ else()
 	add_library("${PROJECT_NAME}" SHARED "${C_CPP_COURCES}")
 	if(DEFINED ENV{LETO_PATH})
 		target_compile_definitions(${PROJECT_NAME} PRIVATE LETOCORE_SHARED)
-		set(CMAKE_RUNTIME_OUTPUT_DIRECTORY $ENV{LETO_PATH}/leto-console/apps/${PRESET_NAME})
 	endif()
 endif()
 
@@ -57,7 +56,7 @@ if(${PRESET_DEFINE_MACRO} STREQUAL "__STM32__")
 	set(CMAKE_ASM_FLAGS "${OBJECT_GEN_FLAGS} -x assembler-with-cpp" CACHE INTERNAL "ASM Compiler Flags")
 
 	set(CMAKE_EXE_LINKER_FLAGS 
-		"-T${CMAKE_CURRENT_LIST_DIR}/${LINKER_SCRIPT} --specs=nano.specs --specs=nosys.specs -Wl,-Map=${CMAKE_PROJECT_NAME}.map -Wl,--gc-sections -mabi=aapcs -Wl,--print-memory-usage" 
+		"-T${CMAKE_CURRENT_LIST_DIR}/devices/${LINKER_SCRIPT} --specs=nano.specs --specs=nosys.specs -Wl,-Map=${CMAKE_PROJECT_NAME}.map -Wl,--gc-sections -mabi=aapcs -Wl,--print-memory-usage" 
 		CACHE INTERNAL "Linker options")
 
 	# 5. Команда для автоматической генерации файлов прошивки (.bin и .hex) после сборки ELF
@@ -101,6 +100,12 @@ endif ()
 
 if(DEFINED ENV{LETO_PATH})
     message(STATUS "[${PROJECT_NAME}] Найдена переменная окружения LETO_PATH. Подключаем готовые артефакты...")
+
+	add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy_directory
+		"${CMAKE_RUNTIME_OUTPUT_DIRECTORY}"
+		"$ENV{LETO_PATH}/leto-console/apps/${CMAKE_PRESET_NAME}/${PROJECT_NAME}/"
+	)
 
 	target_link_directories(${PROJECT_NAME} PUBLIC "$ENV{LETO_PATH}/LetoAPI/lib/${CORE_BUILD_PRESET}")
 	target_link_directories(${PROJECT_NAME} PUBLIC "$ENV{LETO_PATH}/LetoCore/lib/${CORE_BUILD_PRESET}")
