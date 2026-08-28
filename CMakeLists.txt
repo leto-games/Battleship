@@ -15,7 +15,7 @@ file(
 
 if("${PRESET_DEFINE_MACRO}" STREQUAL "__STM32__")
 	project("Battleship" C CXX ASM)
-	file(GLOB HW_COURCES "Drivers/STM32F4xx_HAL_Driver/Src/*.c" "Src/*.cpp" "Src/*.c" )
+	file(GLOB HW_COURCES "Src/*.cpp" "Src/*.c" )
 	add_executable(${PROJECT_NAME} "${C_CPP_COURCES}" "${HW_COURCES}")
 	set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX ".elf")
 else()
@@ -59,16 +59,6 @@ if(${PRESET_DEFINE_MACRO} STREQUAL "__STM32__")
 	set(CMAKE_EXE_LINKER_FLAGS 
 		"-T${CMAKE_CURRENT_LIST_DIR}/${LINKER_SCRIPT} --specs=nano.specs --specs=nosys.specs -Wl,-Map=${CMAKE_PROJECT_NAME}.map -Wl,--gc-sections -mabi=aapcs -Wl,--print-memory-usage" 
 		CACHE INTERNAL "Linker options")
-
-	# ------------------------------------------------------------------------------
-	# Пути к заголовочным файлам (-I)
-	# ------------------------------------------------------------------------------
-	target_include_directories(${PROJECT_NAME} PUBLIC
-		Drivers/CMSIS/Device/ST/STM32F4xx/Include
-		Drivers/CMSIS/Include
-		Drivers/STM32F4xx_HAL_Driver/Inc
-		Drivers/STM32F4xx_HAL_Driver/Inc/Legacy
-	)
 
 	# 5. Команда для автоматической генерации файлов прошивки (.bin и .hex) после сборки ELF
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
