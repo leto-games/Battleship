@@ -1,0 +1,34 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Отладка DLL через тестовый EXE",
+            "type": "cppvsdbg", // Для MSVC на Windows. Используйте "cppdbg" для GCC/Clang (GDB/LLDB)
+            "request": "launch",
+            "program": "${env:LETO_PATH}/leto-console/bin/win-debug-st7735/leto-console.exe",
+            "args": [
+                "--user", "0",
+                "--game", 
+                "${env:LETO_PATH}/leto-console/apps/win-debug/${input:CMakeProjectName}/${input:CMakeProjectName}.dll"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${env:LETO_PATH}/leto-console/bin/win-debug-st7735/",
+            "environment": [],
+            "console": "internalConsole",
+            "preLaunchTask": "CMake: Build (Preset)"
+        }
+    ],
+    "inputs": [
+        {
+            "id": "CMakeProjectName",
+            "type": "command",
+            "command": "cmake.cacheVariable",
+            "args": {
+                "name": "CMAKE_PROJECT_NAME"
+            }
+        }
+    ]
+}
