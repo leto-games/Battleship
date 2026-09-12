@@ -25,7 +25,7 @@
 #include <UI/Animation/MoveAnimation.hpp>
 #include <UI/Animation/CartoonAnimation.hpp>
 #include <Data/Point2.hpp>
-#include <Graphics/BitmapEffects.hpp>
+//#include <Graphics/BitmapEffects.hpp>
 
 namespace Battleship
 {
@@ -33,12 +33,21 @@ namespace Battleship
 	class TestScene final : public IScene
 	{
     protected:
+        BitmapData * outlined;
+        BitmapData * rotated;
         Timer timer;
         float angle{};
 	public:
 		TestScene(ISceneManager* game) : IScene{ game }
         {
             timer.Start(2000);
+
+        }
+
+        void OnShow() override { 
+            InitStickers(LoadedGameAllocator()); 
+            outlined = BitmapData::FromHandle(leto_api_v1->Bitmap->MakeOutlinedBitmap(BitmapData::ToHandle(&BM_Popal_Sticker), LoadedGameAllocator(), 1));
+            rotated = BitmapData::FromHandle(leto_api_v1->Bitmap->CopyBitmap(BitmapData::ToHandle(&BM_Popal_Sticker), LoadedGameAllocator()));
         }
 
 		// Пользовательский ввод в игру
@@ -49,12 +58,17 @@ namespace Battleship
             else if (IsSystemTurnLeftEvent(event))
             {
                 angle -= 2.0f;
-                BitmapEffects::RotateBitmap(BM_Popal_Sticker, BM_Popal_Sticker_Rotating, angle);
+                leto_api_v1->Bitmap->RotateBitmap(BitmapData::ToHandle(&BM_Popal_Sticker), BitmapData::ToHandle(&BM_Popal_Sticker_Rotating), angle);
+                leto_api_v1->Bitmap->RotateBitmap(BitmapData::ToHandle(outlined), BitmapData::ToHandle(rotated), angle);
+
+                //BitmapEffects::RotateBitmap(BM_Popal_Sticker, BM_Popal_Sticker_Rotating, angle);
             }
             else if (IsSystemTurnRightEvent(event))
             {
                 angle += 2.0f;
-                BitmapEffects::RotateBitmap(BM_Popal_Sticker, BM_Popal_Sticker_Rotating, angle);
+                leto_api_v1->Bitmap->RotateBitmap(BitmapData::ToHandle(&BM_Popal_Sticker), BitmapData::ToHandle(&BM_Popal_Sticker_Rotating), angle);
+                            leto_api_v1->Bitmap->RotateBitmap(BitmapData::ToHandle(outlined), BitmapData::ToHandle(rotated), angle);
+                //BitmapEffects::RotateBitmap(BM_Popal_Sticker, BM_Popal_Sticker_Rotating, angle);
             }
             return true;
         }
@@ -67,6 +81,7 @@ namespace Battleship
             else
                 DrawFunctions::DrawRectangle(screen, {0, 0}, {screen.Width(), screen.Height()}, BlackColor);
             if (timer.Expired()) timer.Start();
+            DrawFunctions::DrawBitmap(screen, {10, 10}, *rotated, BlackColor, WhiteColor);
             DrawFunctions::DrawBitmap(screen, {10, 10}, BM_Popal_Sticker_Rotating, WhiteColor, BlackColor);
             DrawFunctions::DrawBitmap(screen, {60, 10}, BM_Ubil_Sticker, WhiteColor, BlackColor);
         }

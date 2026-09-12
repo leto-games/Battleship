@@ -8,17 +8,17 @@
             "name": "Отладка DLL через тестовый EXE",
             "type": "cppvsdbg", // Для MSVC на Windows. Используйте "cppdbg" для GCC/Clang (GDB/LLDB)
             "request": "launch",
-            "program": "${env:LETO_PATH}/leto-console/bin/win-debug-st7735/leto-console.exe",
+            "program": "${env:LETO_PATH}/Console/win-st7735-debug/bin/leto-console.exe",
             "args": [
                 "--user", "0",
                 "--game", 
-                "${env:LETO_PATH}/leto-console/apps/win-debug/${input:CMakeProjectName}/${input:CMakeProjectName}.dll"
+                "${env:LETO_PATH}/Apps/win-debug/${input:CMakeProjectName}/${input:CMakeProjectName}.dll"
             ],
             "stopAtEntry": false,
-            "cwd": "${env:LETO_PATH}/leto-console/bin/win-debug-st7735/",
+            "cwd": "${env:LETO_PATH}/Console/win-st7735-debug/bin/",
             "environment": [],
             "console": "internalConsole",
-            "preLaunchTask": "CMake: Build (Preset)"
+            "preLaunchTask": "CMake: build"
         }
     ],
     "inputs": [
