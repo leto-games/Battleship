@@ -1,3 +1,5 @@
+#ifdef __STM32__
+
 #include <cstdlib>
 #include <sys/reent.h>
 
@@ -29,3 +31,5 @@ extern "C" {
         return nullptr; 
     }
 }
+
+#endif

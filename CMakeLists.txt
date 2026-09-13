@@ -47,16 +47,16 @@ if(${PRESET_DEFINE_MACRO} STREQUAL "__STM32__")
 	# Настройки архитектуры из .cproject (STM32F401CCUx)
 	# ------------------------------------------------------------------------------
 	set(OBJECT_GEN_FLAGS "-mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb")
-	set(COMPILER_FLAGS "-ffunction-sections -fdata-sections -Wall -fstack-usage")
+	set(COMPILER_FLAGS "-ffunction-sections -fdata-sections -Wall -fstack-usage -flto")
 	# -fcyclomatic-complexity - Используется только в STM32CubeIDE
 
 	# Флаги компиляции для C / C++ / ASM
 	set(CMAKE_C_FLAGS   "${OBJECT_GEN_FLAGS} ${COMPILER_FLAGS}" CACHE INTERNAL "C Compiler Flags")
-	set(CMAKE_CXX_FLAGS "${OBJECT_GEN_FLAGS} ${COMPILER_FLAGS} -fno-exceptions -fno-rtti -fno-use-cxa-atexit" CACHE INTERNAL "C++ Compiler Flags")
+	set(CMAKE_CXX_FLAGS "${OBJECT_GEN_FLAGS} ${COMPILER_FLAGS} -fno-exceptions -fno-rtti -fno-use-cxa-atexit -fno-threadsafe-statics" CACHE INTERNAL "C++ Compiler Flags")
 	set(CMAKE_ASM_FLAGS "${OBJECT_GEN_FLAGS} -x assembler-with-cpp" CACHE INTERNAL "ASM Compiler Flags")
 
 	set(CMAKE_EXE_LINKER_FLAGS 
-		"-T${CMAKE_CURRENT_LIST_DIR}/devices/${LINKER_SCRIPT} --specs=nano.specs --specs=nosys.specs -Wl,-Map=${CMAKE_PROJECT_NAME}.map -Wl,--gc-sections -mabi=aapcs -Wl,--print-memory-usage" 
+		"-T${CMAKE_CURRENT_LIST_DIR}/devices/${LINKER_SCRIPT} --specs=nano.specs --specs=nosys.specs -flto -Wl,-Map=${CMAKE_PROJECT_NAME}.map -Wl,--gc-sections -mabi=aapcs -Wl,--print-memory-usage" 
 		CACHE INTERNAL "Linker options")
 
 	# 5. Команда для автоматической генерации файлов прошивки (.bin и .hex) после сборки ELF
