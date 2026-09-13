@@ -322,6 +322,8 @@ static void DrawTextCenter(IScreen& screen, int y, StaticTextView text)
 	DrawText(screen, {64 - TextWidth(text) / 2, y}, text);
 }
 
+#include <Battleship/Bitmaps/Bitmaps.hpp>
+
 void GameScene::Draw(IScreen& screen)
 {
 	using namespace DrawFunctions;
@@ -381,9 +383,9 @@ void GameScene::Draw(IScreen& screen)
 		int sin_motion = static_cast<int>(2 * leto_api_v1->Math->sinf(50 * progress));
 
 		if (show_res == BattleshipField::AttackResult::POPAL)
-			DrawBitmap(screen, {6, progress < 0.25f ? 20 + sin_motion : 20}, BM_Popal_Sticker, WhiteColor, BlackColor);
+			DrawBitmap(screen, {6, progress < 0.25f ? 20 + sin_motion : 20}, BM_PopalText, WhiteColor, BlackColor);
 		else if (show_res == BattleshipField::AttackResult::UBIL)
-			DrawBitmap(screen, {6, 20 + sin_motion}, BM_Ubil_Sticker, WhiteColor, BlackColor);
+			DrawBitmap(screen, {6, 20 + sin_motion}, BM_UbilText, WhiteColor, BlackColor);
 	}
 
 	const IFont* font = IFont::FromHandle(leto_api_v1->Font->GetFont(7, 7, 1));

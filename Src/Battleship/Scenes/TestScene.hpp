@@ -27,16 +27,23 @@
 #include <Data/Point2.hpp>
 //#include <Graphics/BitmapEffects.hpp>
 
+#include <Battleship/Bitmaps/Bitmaps.hpp>
+
 namespace Battleship
 {
 	// Сцена с приветствием
 	class TestScene final : public IScene
 	{
     protected:
-        BitmapData * outlined;
-        BitmapData * rotated;
+        LetoBitmap_V1 *BM_Popal_Big, *BM_Ubil_Big;
+        LetoBitmap_V1 *BM_Popal_Outlined, *BM_Ubil_Outlined;
+
+        LetoBitmap_V1 *BM_Popal_Big_rotated, *BM_Popal_Outlined_rotated;
+        LetoBitmap_V1 *BM_Ubil_Big_rotated, *BM_Ubil_Outlined_rotated;
+        
+        bool stop{false};
         Timer timer;
-        float angle{};
+        int16_t angle{};
 	public:
 		TestScene(ISceneManager* game) : IScene{ game }
         {
@@ -45,9 +52,17 @@ namespace Battleship
         }
 
         void OnShow() override { 
-            InitStickers(LoadedGameAllocator()); 
-            outlined = BitmapData::FromHandle(leto_api_v1->Bitmap->MakeOutlinedBitmap(BitmapData::ToHandle(&BM_Popal_Sticker), LoadedGameAllocator(), 1));
-            rotated = BitmapData::FromHandle(leto_api_v1->Bitmap->CopyBitmap(BitmapData::ToHandle(&BM_Popal_Sticker), LoadedGameAllocator()));
+            BM_Popal_Big = leto_api_v1->Bitmap->ResizeCopyBitmap(BitmapData::ToHandle(&BM_PopalText), LoadedGameAllocator(), 52, 52);
+            BM_Ubil_Big = leto_api_v1->Bitmap->ResizeCopyBitmap(BitmapData::ToHandle(&BM_UbilText), LoadedGameAllocator(), 52, 52);
+            
+            BM_Popal_Outlined = leto_api_v1->Bitmap->MakeOutlinedBitmap(BM_Popal_Big, LoadedGameAllocator(), 2);
+            BM_Ubil_Outlined = leto_api_v1->Bitmap->MakeOutlinedBitmap(BM_Ubil_Big, LoadedGameAllocator(), 2);
+
+            BM_Popal_Big_rotated = leto_api_v1->Bitmap->CopyBitmap(BM_Popal_Big, LoadedGameAllocator());
+            BM_Popal_Outlined_rotated = leto_api_v1->Bitmap->CopyBitmap(BM_Popal_Outlined, LoadedGameAllocator());
+
+            BM_Ubil_Big_rotated = leto_api_v1->Bitmap->CopyBitmap(BM_Ubil_Big, LoadedGameAllocator());
+            BM_Ubil_Outlined_rotated = leto_api_v1->Bitmap->CopyBitmap(BM_Ubil_Outlined, LoadedGameAllocator());
         }
 
 		// Пользовательский ввод в игру
@@ -57,18 +72,23 @@ namespace Battleship
                 scene_manager->SwitchScene((uint32_t)Battleship_Scene::MAIN);
             else if (IsSystemTurnLeftEvent(event))
             {
-                angle -= 2.0f;
-                leto_api_v1->Bitmap->RotateBitmap(BitmapData::ToHandle(&BM_Popal_Sticker), BitmapData::ToHandle(&BM_Popal_Sticker_Rotating), angle);
-                leto_api_v1->Bitmap->RotateBitmap(BitmapData::ToHandle(outlined), BitmapData::ToHandle(rotated), angle);
-
-                //BitmapEffects::RotateBitmap(BM_Popal_Sticker, BM_Popal_Sticker_Rotating, angle);
+                angle -= 8;
+                leto_api_v1->Bitmap->RotateBitmap(BM_Popal_Big,     BM_Popal_Big_rotated, angle);
+                leto_api_v1->Bitmap->RotateBitmap(BM_Popal_Outlined, BM_Popal_Outlined_rotated, angle);
+                leto_api_v1->Bitmap->RotateBitmap(BM_Ubil_Big,      BM_Ubil_Big_rotated, -angle);
+                leto_api_v1->Bitmap->RotateBitmap(BM_Ubil_Outlined, BM_Ubil_Outlined_rotated, -angle);
             }
             else if (IsSystemTurnRightEvent(event))
             {
-                angle += 2.0f;
-                leto_api_v1->Bitmap->RotateBitmap(BitmapData::ToHandle(&BM_Popal_Sticker), BitmapData::ToHandle(&BM_Popal_Sticker_Rotating), angle);
-                            leto_api_v1->Bitmap->RotateBitmap(BitmapData::ToHandle(outlined), BitmapData::ToHandle(rotated), angle);
-                //BitmapEffects::RotateBitmap(BM_Popal_Sticker, BM_Popal_Sticker_Rotating, angle);
+                angle += 8;
+                leto_api_v1->Bitmap->RotateBitmap(BM_Popal_Big, BM_Popal_Big_rotated, angle);
+                leto_api_v1->Bitmap->RotateBitmap(BM_Popal_Outlined, BM_Popal_Outlined_rotated, angle);
+                leto_api_v1->Bitmap->RotateBitmap(BM_Ubil_Big,      BM_Ubil_Big_rotated, -angle);
+                leto_api_v1->Bitmap->RotateBitmap(BM_Ubil_Outlined, BM_Ubil_Outlined_rotated, -angle);
+            }
+            else if (IsSystemAltEvent(event))
+            {
+                stop = !stop;
             }
             return true;
         }
@@ -76,14 +96,18 @@ namespace Battleship
 		// Игровая отрисовка
 		virtual void Draw(IScreen& screen) override
         {
-            if (timer.GetProgress() < 0.5f)
-                DrawFunctions::DrawRectangle(screen, {0, 0}, {screen.Width(), screen.Height()}, WhiteColor);
-            else
-                DrawFunctions::DrawRectangle(screen, {0, 0}, {screen.Width(), screen.Height()}, BlackColor);
-            if (timer.Expired()) timer.Start();
-            DrawFunctions::DrawBitmap(screen, {10, 10}, *rotated, BlackColor, WhiteColor);
-            DrawFunctions::DrawBitmap(screen, {10, 10}, BM_Popal_Sticker_Rotating, WhiteColor, BlackColor);
-            DrawFunctions::DrawBitmap(screen, {60, 10}, BM_Ubil_Sticker, WhiteColor, BlackColor);
+            if (!stop)
+            {
+                if (timer.GetProgress() < 0.5f)
+                    DrawFunctions::DrawRectangle(screen, {0, 0}, {screen.Width(), screen.Height()}, WhiteColor);
+                else
+                    DrawFunctions::DrawRectangle(screen, {0, 0}, {screen.Width(), screen.Height()}, BlackColor);
+                if (timer.Expired()) timer.Start();
+            }
+            DrawFunctions::DrawBitmap(screen, {15, 20}, *BitmapData::FromHandle(BM_Popal_Outlined_rotated), BlackColor, WhiteColor);
+            DrawFunctions::DrawBitmap(screen, {15, 20}, *BitmapData::FromHandle(BM_Popal_Big_rotated), WhiteColor, BlackColor);
+            DrawFunctions::DrawBitmap(screen, {95, 20}, *BitmapData::FromHandle(BM_Ubil_Outlined_rotated), BlackColor, WhiteColor);
+            DrawFunctions::DrawBitmap(screen, {95, 20}, *BitmapData::FromHandle(BM_Ubil_Big_rotated), WhiteColor, BlackColor);
         }
 
         SCENE_NO_ARGS_BUILDER(TestScene)

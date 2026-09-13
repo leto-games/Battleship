@@ -11,18 +11,18 @@
 #include <Data/IAllocator.hpp>
 #include <LetoAPI_V1/Globals/LetoAllocator_V1.h>
 
-/// @brief Стикер "Попал"
-extern BitmapData BM_Popal_Sticker;
+// /// @brief Стикер "Попал"
+// extern BitmapData BM_Popal_Sticker;
 
-/// @brief Стикет "Попал" с вращением
-extern BitmapData BM_Popal_Sticker_Rotating;
+// /// @brief Стикет "Попал" с вращением
+// extern BitmapData BM_Popal_Sticker_Rotating;
 
-/// @brief Стикер "Убил"
-extern BitmapData BM_Ubil_Sticker;
+// /// @brief Стикер "Убил"
+// extern BitmapData BM_Ubil_Sticker;
 
-/**
- * @brief Инициализация битмапов "с эффектами"
- */
-extern void InitStickers(const LetoAllocator_V1* allocator);
+// /**
+//  * @brief Инициализация битмапов "с эффектами"
+//  */
+// extern void InitStickers(const LetoAllocator_V1* allocator);
 
 #endif
