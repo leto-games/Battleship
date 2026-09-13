@@ -46,7 +46,7 @@ bool BattleshipGame::CustomInit()
 	AddSceneBuilder<GameScene>(Battleship_Scene::GAME);
 	AddSceneBuilder<TestScene>(Battleship_Scene::TEST);
 
-	AddSceneBuilder<LobbyScene>(Battleship_Scene::PLAY_WEB, 2, &battleship_callback, &battleship_callback);
+	//AddSceneBuilder<LobbyScene>(Battleship_Scene::PLAY_WEB, 2, &battleship_callback, &battleship_callback);
 
 	//PrepareWebGameScene* prepare_web = AddGameScene<PrepareWebGameScene>(
 	//	Battleship_Scene::PLAY_WEB,	this, 
