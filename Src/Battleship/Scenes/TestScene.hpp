@@ -48,15 +48,17 @@ namespace Battleship
 		TestScene(ISceneManager* game) : IScene{ game }
         {
             timer.Start(2000);
-
         }
 
         void OnShow() override { 
             BM_Popal_Big = leto_api_v1->Bitmap->ResizeCopyBitmap(BitmapData::ToHandle(&BM_PopalText), LoadedGameAllocator(), 52, 52);
             BM_Ubil_Big = leto_api_v1->Bitmap->ResizeCopyBitmap(BitmapData::ToHandle(&BM_UbilText), LoadedGameAllocator(), 52, 52);
             
-            BM_Popal_Outlined = leto_api_v1->Bitmap->MakeOutlinedBitmap(BM_Popal_Big, LoadedGameAllocator(), 2);
-            BM_Ubil_Outlined = leto_api_v1->Bitmap->MakeOutlinedBitmap(BM_Ubil_Big, LoadedGameAllocator(), 2);
+            //BM_Popal_Outlined = leto_api_v1->Bitmap->MakeOutlinedBitmap(BM_Popal_Big, LoadedGameAllocator(), 2);
+            //BM_Ubil_Outlined = leto_api_v1->Bitmap->MakeOutlinedBitmap(BM_Ubil_Big, LoadedGameAllocator(), 2);
+
+            BM_Popal_Outlined = leto_api_v1->Bitmap->MakeStickerBitmap(BM_Popal_Big, LoadedGameAllocator(), 2);
+            BM_Ubil_Outlined = leto_api_v1->Bitmap->MakeStickerBitmap(BM_Ubil_Big, LoadedGameAllocator(), 2);
 
             BM_Popal_Big_rotated = leto_api_v1->Bitmap->CopyBitmap(BM_Popal_Big, LoadedGameAllocator());
             BM_Popal_Outlined_rotated = leto_api_v1->Bitmap->CopyBitmap(BM_Popal_Outlined, LoadedGameAllocator());
@@ -104,10 +106,21 @@ namespace Battleship
                     DrawFunctions::DrawRectangle(screen, {0, 0}, {screen.Width(), screen.Height()}, BlackColor);
                 if (timer.Expired()) timer.Start();
             }
-            DrawFunctions::DrawBitmap(screen, {15, 20}, *BitmapData::FromHandle(BM_Popal_Outlined_rotated), BlackColor, WhiteColor);
-            DrawFunctions::DrawBitmap(screen, {15, 20}, *BitmapData::FromHandle(BM_Popal_Big_rotated), WhiteColor, BlackColor);
-            DrawFunctions::DrawBitmap(screen, {95, 20}, *BitmapData::FromHandle(BM_Ubil_Outlined_rotated), BlackColor, WhiteColor);
-            DrawFunctions::DrawBitmap(screen, {95, 20}, *BitmapData::FromHandle(BM_Ubil_Big_rotated), WhiteColor, BlackColor);
+            leto_api_v1->Graphics->DrawLine(IScreen::ToHandle(&screen), 0, 0, 160, 128, 1, DeepOrangeColor);
+            leto_api_v1->Graphics->DrawLine(IScreen::ToHandle(&screen), 160, 0, 0, 128, 1, DeepOrangeColor);
+
+            for (int i = 0; i < 4; ++i)
+                leto_api_v1->Graphics->DrawRect(IScreen::ToHandle(&screen), 10 + i * 10, 10 + i * 10, 140 - i * 20, 108 - i * 20, 1, CyanColor);
+
+            leto_api_v1->Graphics->DrawBitmap(IScreen::ToHandle(&screen), 15, 35, BM_Popal_Outlined_rotated, BlackColor);
+            leto_api_v1->Graphics->DrawBitmap(IScreen::ToHandle(&screen), 15, 35, BM_Popal_Big_rotated,      WhiteColor);
+            leto_api_v1->Graphics->DrawBitmap(IScreen::ToHandle(&screen), 95, 35, BM_Ubil_Outlined_rotated,  BlackColor);
+            leto_api_v1->Graphics->DrawBitmap(IScreen::ToHandle(&screen), 95, 35, BM_Ubil_Big_rotated,       WhiteColor);
+
+            //DrawFunctions::DrawBitmap(screen, {15, 20}, *BitmapData::FromHandle(BM_Popal_Outlined_rotated), BlackColor, WhiteColor);
+            //DrawFunctions::DrawBitmap(screen, {15, 20}, *BitmapData::FromHandle(BM_Popal_Big_rotated), WhiteColor, BlackColor);
+            //DrawFunctions::DrawBitmap(screen, {95, 20}, *BitmapData::FromHandle(BM_Ubil_Outlined_rotated), BlackColor, WhiteColor);
+            //DrawFunctions::DrawBitmap(screen, {95, 20}, *BitmapData::FromHandle(BM_Ubil_Big_rotated), WhiteColor, BlackColor);
         }
 
         SCENE_NO_ARGS_BUILDER(TestScene)
