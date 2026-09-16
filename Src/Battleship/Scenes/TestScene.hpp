@@ -101,16 +101,37 @@ namespace Battleship
             if (!stop)
             {
                 if (timer.GetProgress() < 0.5f)
-                    DrawFunctions::DrawRectangle(screen, {0, 0}, {screen.Width(), screen.Height()}, WhiteColor);
+                    screen.FillScreen(WhiteColor);
                 else
-                    DrawFunctions::DrawRectangle(screen, {0, 0}, {screen.Width(), screen.Height()}, BlackColor);
-                if (timer.Expired()) timer.Start();
+                    screen.FillScreen(BlackColor);
             }
+            if (timer.Expired()) timer.Start();
             leto_api_v1->Graphics->DrawLine(IScreen::ToHandle(&screen), 0, 0, 160, 128, 1, DeepOrangeColor);
             leto_api_v1->Graphics->DrawLine(IScreen::ToHandle(&screen), 160, 0, 0, 128, 1, DeepOrangeColor);
+            leto_api_v1->Graphics->DrawTriangle(IScreen::ToHandle(&screen), 
+                10, 64, 
+                140, 10, 
+                45, 117, 
+                5, PurpleColor);
 
-            for (int i = 0; i < 4; ++i)
+            leto_api_v1->Graphics->DrawRoundRect(IScreen::ToHandle(&screen), 10, 10, 140, 108, 10, 1, CyanColor);
+
+            for (int i = 1; i < 4; ++i)
                 leto_api_v1->Graphics->DrawRect(IScreen::ToHandle(&screen), 10 + i * 10, 10 + i * 10, 140 - i * 20, 108 - i * 20, 1, CyanColor);
+
+            int32_t w = 80;
+            if (timer.GetProgress() < 0.5f)
+                w += 30 * (0.25f - timer.GetProgress());
+            else
+                w -= 30 * (0.75f - timer.GetProgress());
+            leto_api_v1->Graphics->DrawEllipse(IScreen::ToHandle(&screen), 80, 64, 10, w-35, 0, BlackColor);
+            leto_api_v1->Graphics->DrawEllipse(IScreen::ToHandle(&screen), 80, 64, 10, w-35, 1, BlueColor);
+            leto_api_v1->Graphics->DrawEllipse(IScreen::ToHandle(&screen), 80, 64, 20, w-25, 1, BlueColor);
+            leto_api_v1->Graphics->DrawEllipse(IScreen::ToHandle(&screen), 80, 64, 30, w-15, 1, IndigoColor);
+            leto_api_v1->Graphics->DrawEllipse(IScreen::ToHandle(&screen), 80, 64, 40, w-5, 1, IndigoColor);
+            leto_api_v1->Graphics->DrawEllipse(IScreen::ToHandle(&screen), 80, 64, 20 + w, 20 + w, 3, DarkRedColor);
+            leto_api_v1->Graphics->DrawEllipse(IScreen::ToHandle(&screen), 80, 64, 10 + w, 10 + w, 1, DeepOrangeColor);
+            leto_api_v1->Graphics->DrawEllipse(IScreen::ToHandle(&screen), 80, 64, 0 + w, 0 + w, 1, GreenColor);
 
             leto_api_v1->Graphics->DrawBitmap(IScreen::ToHandle(&screen), 15, 35, BM_Popal_Outlined_rotated, BlackColor);
             leto_api_v1->Graphics->DrawBitmap(IScreen::ToHandle(&screen), 15, 35, BM_Popal_Big_rotated,      WhiteColor);
