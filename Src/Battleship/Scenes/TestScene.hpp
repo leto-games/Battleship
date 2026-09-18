@@ -43,7 +43,13 @@ namespace Battleship
         
         bool stop{false};
         Timer timer;
-        int16_t angle{};
+        uint16_t angle{};
+
+        static uint16_t AngleNormalize(int16_t angle)
+        {
+            while (angle < 0) angle += 360;
+            return (angle %= 360);
+        }
 	public:
 		TestScene(ISceneManager* game) : IScene{ game }
         {
@@ -74,7 +80,7 @@ namespace Battleship
                 scene_manager->SwitchScene((uint32_t)Battleship_Scene::MAIN);
             else if (IsSystemTurnLeftEvent(event))
             {
-                angle -= 8;
+                angle = AngleNormalize(angle - 8);
                 leto_api_v1->Bitmap->RotateBitmap(BM_Popal_Big,     BM_Popal_Big_rotated, angle);
                 leto_api_v1->Bitmap->RotateBitmap(BM_Popal_Outlined, BM_Popal_Outlined_rotated, angle);
                 leto_api_v1->Bitmap->RotateBitmap(BM_Ubil_Big,      BM_Ubil_Big_rotated, -angle);
@@ -82,7 +88,7 @@ namespace Battleship
             }
             else if (IsSystemTurnRightEvent(event))
             {
-                angle += 8;
+                angle = AngleNormalize(angle + 8);
                 leto_api_v1->Bitmap->RotateBitmap(BM_Popal_Big, BM_Popal_Big_rotated, angle);
                 leto_api_v1->Bitmap->RotateBitmap(BM_Popal_Outlined, BM_Popal_Outlined_rotated, angle);
                 leto_api_v1->Bitmap->RotateBitmap(BM_Ubil_Big,      BM_Ubil_Big_rotated, -angle);
@@ -98,23 +104,48 @@ namespace Battleship
 		// Игровая отрисовка
 		virtual void Draw(IScreen& screen) override
         {
+            RGBColor back = BlackColor, front = WhiteColor;
             if (!stop)
             {
                 if (timer.GetProgress() < 0.5f)
-                    screen.FillScreen(WhiteColor);
-                else
-                    screen.FillScreen(BlackColor);
+                {
+                    back = WhiteColor;
+                    front = BlackColor;
+                    screen.FillScreen(back);
+                }
             }
             if (timer.Expired()) timer.Start();
-            leto_api_v1->Graphics->DrawLine(IScreen::ToHandle(&screen), 0, 0, 160, 128, 1, DeepOrangeColor);
-            leto_api_v1->Graphics->DrawLine(IScreen::ToHandle(&screen), 160, 0, 0, 128, 1, DeepOrangeColor);
+            
+            int32_t triangle_add = 35;
+            if (timer.GetProgress() < 0.25f)
+                triangle_add *= (0.25f - 2 * timer.GetProgress());
+            else if (timer.GetProgress() < 0.5f)
+                triangle_add *= (-0.25f);
+            else
+                triangle_add *= -(0.75f - timer.GetProgress());
+
+            leto_api_v1->Graphics->DrawTriangle(IScreen::ToHandle(&screen), 
+                10 - triangle_add, 8 - triangle_add, 
+                140 + triangle_add, 31 - triangle_add, 
+                75, 142 + triangle_add, 
+                0, YellowColor);
             leto_api_v1->Graphics->DrawTriangle(IScreen::ToHandle(&screen), 
                 10, 64, 
                 140, 10, 
                 45, 117, 
-                5, PurpleColor);
+                2, PurpleColor);
 
-            leto_api_v1->Graphics->DrawRoundRect(IScreen::ToHandle(&screen), 10, 10, 140, 108, 10, 1, CyanColor);
+            leto_api_v1->Graphics->DrawLine(IScreen::ToHandle(&screen), 
+                30 + 30 * leto_api_v1->Math->cosf(angle * 3.141592f / 180), 0, 
+                130 + 30 * leto_api_v1->Math->sinf(angle * 3.141592f / 180), 128, 
+                2, DeepOrangeColor);
+            leto_api_v1->Graphics->DrawLine(
+                IScreen::ToHandle(&screen), 
+                160, 0,
+                0, 98 + 30 * leto_api_v1->Math->sinf(angle * 3.141592f / 180), 
+                2, DeepOrangeColor);
+
+            leto_api_v1->Graphics->DrawRoundRect(IScreen::ToHandle(&screen), 5, 5, 150, 118, 10, 1, front);
 
             for (int i = 1; i < 4; ++i)
                 leto_api_v1->Graphics->DrawRect(IScreen::ToHandle(&screen), 10 + i * 10, 10 + i * 10, 140 - i * 20, 108 - i * 20, 1, CyanColor);
