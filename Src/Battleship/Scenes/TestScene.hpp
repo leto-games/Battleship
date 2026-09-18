@@ -164,10 +164,10 @@ namespace Battleship
             leto_api_v1->Graphics->DrawEllipse(IScreen::ToHandle(&screen), 80, 64, 10 + w, 10 + w, 1, DeepOrangeColor);
             leto_api_v1->Graphics->DrawEllipse(IScreen::ToHandle(&screen), 80, 64, 0 + w, 0 + w, 1, GreenColor);
 
-            leto_api_v1->Graphics->DrawBitmap(IScreen::ToHandle(&screen), 15, 35, BM_Popal_Outlined_rotated, BlackColor);
-            leto_api_v1->Graphics->DrawBitmap(IScreen::ToHandle(&screen), 15, 35, BM_Popal_Big_rotated,      WhiteColor);
-            leto_api_v1->Graphics->DrawBitmap(IScreen::ToHandle(&screen), 95, 35, BM_Ubil_Outlined_rotated,  BlackColor);
-            leto_api_v1->Graphics->DrawBitmap(IScreen::ToHandle(&screen), 95, 35, BM_Ubil_Big_rotated,       WhiteColor);
+            leto_api_v1->Graphics->DrawBitmap(IScreen::ToHandle(&screen), 15, 35, BM_Popal_Outlined_rotated, BlackColor, false);
+            leto_api_v1->Graphics->DrawBitmap(IScreen::ToHandle(&screen), 15, 35, BM_Popal_Big_rotated,      WhiteColor, false);
+            leto_api_v1->Graphics->DrawBitmap(IScreen::ToHandle(&screen), 95, 35, BM_Ubil_Outlined_rotated,  BlackColor, false);
+            leto_api_v1->Graphics->DrawBitmap(IScreen::ToHandle(&screen), 95, 35, BM_Ubil_Big_rotated,       WhiteColor, false);
 
             //DrawFunctions::DrawBitmap(screen, {15, 20}, *BitmapData::FromHandle(BM_Popal_Outlined_rotated), BlackColor, WhiteColor);
             //DrawFunctions::DrawBitmap(screen, {15, 20}, *BitmapData::FromHandle(BM_Popal_Big_rotated), WhiteColor, BlackColor);
