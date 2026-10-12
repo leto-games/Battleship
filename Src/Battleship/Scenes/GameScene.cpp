@@ -49,11 +49,13 @@ GameScene::GameScene(ISceneManager* game)
 
 void GameScene::OnShow()
 {
+	data_processor.ClearLobbyData();
 	Restart();
 }
 
 void GameScene::OnHide()
 {
+	data_processor.ClearLobbyData();
 	// Отправить сообщение о разрыве связи
 	if (!switch_revanche)
 	{
@@ -425,6 +427,11 @@ void GameScene::Draw(IScreen& screen)
 
 void GameScene::Loop()
 {
+	if (web_mode)
+	{
+		data_processor.Loop();
+	}
+
 	if (pause_multi_press_handler.MultiPressed(false))
 	{
 		if (left_hold_handler.Holded(150, ButtonHoldHandler::OnHoldPolicy::KEEP) && 

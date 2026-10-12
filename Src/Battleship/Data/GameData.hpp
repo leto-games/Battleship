@@ -17,6 +17,8 @@
 //#include <Storage/NamedSpace.hpp>
 #include <Data/StaticText.hpp>
 
+#include <GamesSupport/Lobby/LobbyDataProcessor.hpp>
+
 namespace Battleship
 {
 	extern bool web_mode;
@@ -75,6 +77,8 @@ namespace Battleship
 
 	// Запрос на реванш
 	extern WebRequest revanche_request;
+
+	extern LobbyDataProcessor data_processor;
 
 };
 

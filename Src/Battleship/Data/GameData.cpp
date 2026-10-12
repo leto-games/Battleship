@@ -21,4 +21,5 @@ namespace Battleship
 	WebRequest fire_request(FIRE);
 	WebRequest revanche_request(REVANCHE_GAME);
 
+	LobbyDataProcessor data_processor;
 }
