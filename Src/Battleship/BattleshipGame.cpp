@@ -28,16 +28,38 @@ void battleship_callback(uint32_t id, const void* data, uint32_t size)
 	data_processor.ReceiveData(id, data, size);
 }
 
+void battleship_ready(bool host)
+{
+	Battleship::web_mode = true;
+	Battleship::my_move = host;
+
+	LobbyConnection_V1 lobby;
+	if (!leto_api_v1->Lobby->GetActiveLobby(&lobby))
+		return;
+	
+	uint8_t opp_member = host ? 1 : 0;
+	
+	WebDeviceInfo_V1 info;
+	if (!leto_api_v1->Web->FindDeviceNear(lobby.members[opp_member], &info))
+		return;
+
+	Battleship::opp_name = info.web_name;
+	Battleship::opp_channel = info.channel;
+	Battleship::opp_avatar = info.avatar_id;
+
+	GameInstance->SwitchScene(Battleship_Scene::PLACE_SHIPS);
+}
+
 bool BattleshipGame::CustomInit()
 {
 	DrawFunctions::SetDefaultFont(IFont::FromHandle(leto_api_v1->Font->GetFont(8, 8, 0)));
 
 	//InitStickers(LoadedGameAllocator());
 	
-	static BattleshipMyField my;
-	static BattleshipOppField opp;
-	my_field = &my;
-	opp_field = &opp;
+	//static BattleshipMyField my;
+	//static BattleshipOppField opp;
+	my_field = leto_new BattleshipMyField;
+	opp_field = leto_new BattleshipOppField;
 
 	AddSceneBuilder<WelcomeScene>(Battleship_Scene::WELCOME);
 	AddSceneBuilder<MainScene>(Battleship_Scene::MAIN);
@@ -46,7 +68,7 @@ bool BattleshipGame::CustomInit()
 	AddSceneBuilder<GameScene>(Battleship_Scene::GAME);
 	AddSceneBuilder<TestScene>(Battleship_Scene::TEST);
 
-	AddSceneBuilder<LobbyScene>(Battleship_Scene::PLAY_WEB, 2, &battleship_callback, &battleship_callback);
+	AddSceneBuilder<LobbyScene>(Battleship_Scene::PLAY_WEB, 2, &battleship_callback, &battleship_callback, &battleship_ready);
 
 	//PrepareWebGameScene* prepare_web = AddGameScene<PrepareWebGameScene>(
 	//	Battleship_Scene::PLAY_WEB,	this, 

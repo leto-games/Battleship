@@ -10,7 +10,7 @@
 
 #include <GamesSupport/BaseGame.hpp>
 
-class BattleshipGame final : public BaseGame<32, 512>
+class BattleshipGame final : public BaseGame<32, 512, 12 * 1024>
 {
 public:
 	BattleshipGame(const AppBinHeader& header);

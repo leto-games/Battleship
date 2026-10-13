@@ -107,11 +107,44 @@ if(DEFINED ENV{LETO_PATH})
 		"$ENV{LETO_PATH}/Apps/${CMAKE_PRESET_NAME}/${PROJECT_NAME}/"
 	)
 
-	target_link_directories(${PROJECT_NAME} PUBLIC "$ENV{LETO_PATH}/LetoAPI/lib/${CORE_BUILD_PRESET}")
-	target_link_directories(${PROJECT_NAME} PUBLIC "$ENV{LETO_PATH}/LetoCore/lib/${CORE_BUILD_PRESET}")
+	set(LIB_DIR "$ENV{LETO_PATH}/Common/${CORE_BUILD_PRESET}/lib")
+	set(BIN_DIR "$ENV{LETO_PATH}/Common/${CORE_BUILD_PRESET}/bin")
 
-	target_include_directories(${PROJECT_NAME} PUBLIC "$ENV{LETO_PATH}/LetoAPI/include")
-	target_include_directories(${PROJECT_NAME} PUBLIC "$ENV{LETO_PATH}/LetoCore/include")
+    if(WIN32)
+		set(LIB_PREFIX "")
+        set(LIB_EXT "lib")
+
+		add_library(LetoAPI SHARED IMPORTED GLOBAL)
+		set_target_properties(LetoAPI PROPERTIES
+			IMPORTED_IMPLIB "${LIB_DIR}/${LIB_PREFIX}LetoAPI.${LIB_EXT}"
+			IMPORTED_LOCATION "${BIN_DIR}/LetoAPI.dll"
+			INTERFACE_INCLUDE_DIRECTORIES "$ENV{LETO_PATH}/LetoAPI/include"
+		)
+
+		add_library(LetoCore SHARED IMPORTED GLOBAL)
+		set_target_properties(LetoCore PROPERTIES
+			IMPORTED_IMPLIB "${LIB_DIR}/${LIB_PREFIX}LetoCore.${LIB_EXT}"
+			IMPORTED_LOCATION "${BIN_DIR}/LetoCore.dll"
+			INTERFACE_INCLUDE_DIRECTORIES "$ENV{LETO_PATH}/LetoCore/include"
+			INTERFACE_COMPILE_DEFINITIONS "LETOCORE_SHARED" # макрос привязан к библиотеке!
+		)
+    else()
+        set(LIB_PREFIX "lib")
+        set(LIB_EXT "a")
+
+		add_library(LetoAPI STATIC IMPORTED GLOBAL)
+		set_target_properties(LetoAPI PROPERTIES
+			IMPORTED_LOCATION "${LIB_DIR}/${LIB_PREFIX}LetoAPI.${LIB_EXT}"
+			INTERFACE_INCLUDE_DIRECTORIES "$ENV{LETO_PATH}/LetoAPI/include"
+		)
+
+		add_library(LetoCore STATIC IMPORTED GLOBAL)
+		set_target_properties(LetoCore PROPERTIES
+			IMPORTED_LOCATION "${LIB_DIR}/${LIB_PREFIX}LetoCore.${LIB_EXT}"
+			INTERFACE_INCLUDE_DIRECTORIES "$ENV{LETO_PATH}/LetoCore/include"
+			INTERFACE_COMPILE_DEFINITIONS "LETOCORE_SHARED" # макрос привязан к библиотеке!
+		)
+    endif()
 else()
     message(STATUS "[${PROJECT_NAME}] Переменная окружения LETO_PATH не найдена. Серверная сборка через FetchContent...")
 
@@ -124,8 +157,7 @@ else()
     FetchContent_MakeAvailable(LetoCore)
 endif()
 
-target_link_libraries("${PROJECT_NAME}" PUBLIC LetoAPI)
-target_link_libraries("${PROJECT_NAME}" PUBLIC LetoCore)
+target_link_libraries("${PROJECT_NAME}" PUBLIC LetoAPI LetoCore)
 
 install(TARGETS ${PROJECT_NAME}
     RUNTIME DESTINATION bin
