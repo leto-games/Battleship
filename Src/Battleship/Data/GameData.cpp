@@ -12,6 +12,9 @@ namespace Battleship
 	uint32_t opp_avatar;
 	uint8_t opp_channel;
 
+	SourceCell<uint8_t, uint8_t, 2> CursorX;
+	SourceCell<uint8_t, uint8_t, 2> CursorY;
+
 	//NamedSpace* CurrentSpace{};
 	//NamedDataCell<BattleshipSave> GameSave("BTSP_SV", &CurrentSpace);
 

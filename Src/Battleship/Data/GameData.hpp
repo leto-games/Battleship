@@ -16,6 +16,7 @@
 #include <Storage/NamedDataCell.hpp>
 //#include <Storage/NamedSpace.hpp>
 #include <Data/StaticText.hpp>
+#include <Data/SourceCell.hpp>
 
 #include <GamesSupport/Lobby/LobbyDataProcessor.hpp>
 
@@ -30,6 +31,9 @@ namespace Battleship
 	extern StaticText32 opp_name;
 	extern uint32_t opp_avatar;
 	extern uint8_t opp_channel;
+
+	extern SourceCell<uint8_t, uint8_t, 2> CursorX;
+	extern SourceCell<uint8_t, uint8_t, 2> CursorY;
 
 	//extern NamedSpace* CurrentSpace;
 	//extern NamedDataCell<BattleshipSave> GameSave;

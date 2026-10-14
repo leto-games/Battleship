@@ -21,6 +21,8 @@ protected:
 
 	// Функция завершения игры
 	void CustomClose() override;
+
+	void CustomLoop() override;
 };
 
 extern BattleshipGame* GameInstance;

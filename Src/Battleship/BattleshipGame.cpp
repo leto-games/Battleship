@@ -28,14 +28,16 @@ void battleship_callback(uint32_t id, const void* data, uint32_t size)
 	data_processor.ReceiveData(id, data, size);
 }
 
-void battleship_ready(bool host)
+void battleship_ready()
 {
-	Battleship::web_mode = true;
-	Battleship::my_move = host;
-
 	LobbyConnection_V1 lobby;
 	if (!leto_api_v1->Lobby->GetActiveLobby(&lobby))
 		return;
+		
+	bool host = lobby.owner == leto::globals::GetDeviceID();
+
+	Battleship::web_mode = true;
+	Battleship::my_move = host;
 	
 	uint8_t opp_member = host ? 1 : 0;
 	
@@ -90,6 +92,11 @@ void BattleshipGame::CustomClose()
 {
 	my_field = nullptr;
 	opp_field = nullptr;
+}
+
+void BattleshipGame::CustomLoop()
+{
+	data_processor.Loop();
 }
 
 BattleshipGame* GameInstance = nullptr;
