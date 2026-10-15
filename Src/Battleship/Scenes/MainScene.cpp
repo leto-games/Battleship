@@ -14,6 +14,7 @@ using namespace Battleship;
 // ----------------------------------------------------------------------------------------------------
 
 #include <DrawFunctions/DrawBitmap.hpp>
+#include <Graphics/ShiftScreen.hpp>
 
 WelcomeScene::WelcomeScene(ISceneManager* game) :
 	IScene{ game }
@@ -21,8 +22,10 @@ WelcomeScene::WelcomeScene(ISceneManager* game) :
 	welcome_timer.Start(600);
 }
 
-void WelcomeScene::Draw(IScreen& screen)
+void WelcomeScene::Draw(IScreen& _screen)
 {
+	ShiftScreen screen(&_screen, _screen.Width() > 128 ? Point2_i{16, 16} : Point2_i{0, 0});
+
 	if (welcome_part >= 3)
 	{
 		scene_manager->SwitchScene((uint8_t) Battleship_Scene::MAIN);
@@ -81,14 +84,6 @@ MainScene::MainScene(ISceneManager* game) :
 	bomb_positions.Push({ 100, 0 });
 }
 
-static StaticText<128> app_path;
-static uint8_t file_info[128]{};
-static uint32_t file_info_size{};
-static FileInfo_V1 info[4]{};
-static size_t info_size{};
-
-#include <LetoFunctions/File.hpp>
-
 void MainScene::OnShow()
 {
 	menu.OnShow();
@@ -100,26 +95,6 @@ void MainScene::OnShow()
 	ship_animation.Play();
 
 	bomb_animation.Play();
-
-	bool r1 = leto_api_v1->Globals->GetAppDir(app_path.CharPtr(), app_path.Capacity());
-
-	app_path += "Data";
-	info_size = leto_api_v1->File->Scan(app_path, info, 128);
-
-	{
-		leto::file::FileGuard file(app_path + "\\level1.txt", LFM_V1_READ);
-		file_info_size = file.Read(file_info, sizeof(file_info));
-	}
-
-	file_info[5] = '4';
-
-	{
-		leto::file::FileGuard file(app_path + "\\level1.txt", LFM_V1_WRITE);
-		file.Write(file_info, file_info_size);
-		file.Flush();
-	}
-
-	int x = 12;
 }
 
 bool MainScene::ProcessInput(const AppEvent& event)
@@ -154,8 +129,10 @@ void MainScene::Loop()
 
 #include <LetoFunctions/Draw.hpp>
 
-void MainScene::Draw(IScreen& screen)
+void MainScene::Draw(IScreen& _screen)
 {
+	ShiftScreen screen(&_screen, _screen.Width() > 128 ? Point2_i{16, 16} : Point2_i{0, 0});
+
 	// Перезагрузка анимации
 	if (!ship_animation.IsPlaying())
 	{
@@ -184,14 +161,6 @@ void MainScene::Draw(IScreen& screen)
 
 	menu.MainDraw(screen);
 	exit_question.MainDraw(screen);
-
-	leto::graphics::DrawText(IScreen::ToHandle(&screen), {0, 60}, app_path);
-	leto::graphics::DrawText(IScreen::ToHandle(&screen), {0, 70}, StaticText32("info_cnt:") + to_text(info_size));
-	leto::graphics::DrawText(IScreen::ToHandle(&screen), {0, 80}, StaticText32("info[0]:") + info[0].filename);
-	leto::graphics::DrawText(IScreen::ToHandle(&screen), {0, 90}, StaticText32("info[0] size:") + to_text(info[0].size));
-	leto::graphics::DrawText(IScreen::ToHandle(&screen), {0, 100}, StaticText32("info[1]:") + info[1].filename);
-	leto::graphics::DrawText(IScreen::ToHandle(&screen), {0, 110}, StaticText32("info[1] size:") + to_text(info[1].size));
-	leto::graphics::DrawText(IScreen::ToHandle(&screen), {0, 120}, reinterpret_cast<const char*>(file_info));
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -271,8 +240,10 @@ bool ChooseGameModeScene::ProcessInput(const AppEvent& event)
 	return MainScene::ProcessInput(event);
 }
 
-void ChooseGameModeScene::Draw(IScreen& screen)
+void ChooseGameModeScene::Draw(IScreen& _screen)
 {
+	ShiftScreen screen(&_screen, _screen.Width() > 128 ? Point2_i{16, 16} : Point2_i{0, 0});
+
 	menu.Draw(screen);
 
 	if (reset_timer.Expired() && order >= 0 && order <= 100)

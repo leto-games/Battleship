@@ -15,6 +15,8 @@ class BattleshipGame final : public BaseGame<32, 512, 12 * 1024>
 public:
 	BattleshipGame(const AppBinHeader& header);
 
+	void Draw(IScreen& screen) override;
+
 protected:
 	// Инициализация игры
 	bool CustomInit() override;

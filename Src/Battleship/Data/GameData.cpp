@@ -10,19 +10,16 @@ namespace Battleship
 
 	StaticText32 opp_name;
 	uint32_t opp_avatar;
+	uint32_t opp_id;
 	uint8_t opp_channel;
 
-	SourceCell<uint8_t, uint8_t, 2> CursorX;
-	SourceCell<uint8_t, uint8_t, 2> CursorY;
-
-	//NamedSpace* CurrentSpace{};
-	//NamedDataCell<BattleshipSave> GameSave("BTSP_SV", &CurrentSpace);
-
-	WebRequest start_request(START_GAME);
-	WebRequest ready_request(ASK_READY);
-	WebRequest end_request(END_GAME);
-	WebRequest fire_request(FIRE);
-	WebRequest revanche_request(REVANCHE_GAME);
+	BattleshipCell<uint8_t> GameStage;
+	BattleshipCell<uint8_t> Request;
+	BattleshipCell<uint8_t> Response;
+	BattleshipCell<uint8_t> CursorRow;
+	BattleshipCell<uint8_t> CursorCol;
 
 	LobbyDataProcessor data_processor;
+
+	CommonInfo LobbyData_Common{0x01};
 }

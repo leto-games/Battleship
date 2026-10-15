@@ -22,6 +22,9 @@
 
 namespace Battleship
 {
+	template <typename T>
+	using BattleshipCell = SourceCell<T, uint32_t, 2>;
+
 	extern bool web_mode;
 	extern bool my_move;
 
@@ -30,60 +33,86 @@ namespace Battleship
 
 	extern StaticText32 opp_name;
 	extern uint32_t opp_avatar;
+	extern uint32_t opp_id;
 	extern uint8_t opp_channel;
 
-	extern SourceCell<uint8_t, uint8_t, 2> CursorX;
-	extern SourceCell<uint8_t, uint8_t, 2> CursorY;
-
-	//extern NamedSpace* CurrentSpace;
-	//extern NamedDataCell<BattleshipSave> GameSave;
-
-	enum RequestType
+	enum GameStage 
 	{
-		// Запрос на начало игры
-		START_GAME = 1,
-		// Уведомление о готовности начать
-		ASK_READY,
-		// Запрос на завершение игры
-		END_GAME,
-		// Атака
-		FIRE,
-		// Реванш
-		REVANCHE_GAME,
+		STAGE_NONE,
+		STAGE_PLACE_SHIPS,
+		STAGE_GAME_MY_TURN, 	// REQ_ATTACK
+		STAGE_GAME_OPP_TURN,
+		STAGE_FINISH,
+		STAGE_REVENGE
 	};
+	extern BattleshipCell<uint8_t> GameStage;
 
-	enum YesNoResponseType
+	enum Request
 	{
-		// Подтвеждение
-		YES_RESPONSE = 1,
-		// Отказ
-		NO_RESPONSE,
+		REQ_NONE,
+		REQ_ATTACK, // Запрос на атаку (активируется только из NONE -> REQ_ATTACK)
+		REQ_YOUR_TURN
 	};
+	extern BattleshipCell<uint8_t> Request;
 
-	enum FireResponseType
+	enum Response
 	{
-		MIMO_RESPONSE = 1,
-		POPAL_RESPONSE,
-		UBIL_RESPONSE,
+		RESP_NONE,
+		RESP_ATTACK_MIMO,
+		RESP_ATTACK_POPAL,
+		RESP_ATTACK_UBIL,
+		RESP_REVENGE_YES,
+		RESP_REVENGE_NO,
 	};
+	extern BattleshipCell<uint8_t> Response;
 
-	// Запрос на начало игры
-	extern WebRequest start_request;
-
-	// Запрос на готовность игры
-	extern WebRequest ready_request;
-
-	// Запрос на прерывание игры
-	extern WebRequest end_request;
-
-	// Запрос на огонь (для сетевой версии)
-	extern WebRequest fire_request;
-
-	// Запрос на реванш
-	extern WebRequest revanche_request;
+	extern BattleshipCell<uint8_t> CursorRow;
+	extern BattleshipCell<uint8_t> CursorCol;
 
 	extern LobbyDataProcessor data_processor;
 
+	extern struct CommonInfo : public LobbyData
+	{
+		CommonInfo(uint8_t data_id) : LobbyData(data_id, 100) { }
+		
+		bool OnSend(void* data, uint32_t size) override
+		{
+			if (size < 5) return false; // !!! TODO
+			
+			uint8_t* u_data = static_cast<uint8_t*>(data);
+
+			u_data[0] = GameStage.GetOrDefault();
+			u_data[1] = Request.GetOrDefault();
+			u_data[2] = Response.GetOrDefault();
+			u_data[3] = CursorRow.GetOrDefault();
+			u_data[4] = CursorCol.GetOrDefault();
+
+			return true;
+		}
+		
+		void OnReceive(uint32_t id, const void* data, uint32_t size) override
+		{
+			if (size < 5) return; // !!! TODO
+
+			const uint8_t* u_data = static_cast<const uint8_t*>(data);
+			
+			GameStage.Set(u_data[0], id);
+			Request.Set(u_data[1], id);
+			Response.Set(u_data[2], id);
+			CursorRow.Set(u_data[3], id);
+			CursorCol.Set(u_data[4], id);
+		}
+
+		void OnTimeout() override
+		{
+			GameStage.Clear(opp_id);
+			Request.Clear(opp_id);
+			Response.Clear(opp_id);
+			CursorRow.Clear(opp_id);
+			CursorCol.Clear(opp_id);
+		}
+	}
+	LobbyData_Common;
 };
 
 #endif

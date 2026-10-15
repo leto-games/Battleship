@@ -212,6 +212,8 @@ void PlaceShipsScene::OnShow()
 	delete_loaded_memory.ResetCurrentID();
 	state = PlaceState::CHOOSE_SHIP;
 
+	Battleship::GameStage.Set(STAGE_PLACE_SHIPS);
+
 	BattleshipSave save{};
 	//if (web_mode && GameSave.Get(save))
 	//{
@@ -351,6 +353,8 @@ bool PlaceShipsScene::ProcessInput(const AppEvent& event)
 			current_ship.Left();
 		else if (IsSystemRightEvent(event))
 			current_ship.Right();
+		else if (IsSystemTurnLeftEvent(event) || IsSystemTurnRightEvent(event))
+			current_ship.Rotate();
 		else if (IsSystemEnterEvent(event))
 		{
 			// Обновить количество кораблей
@@ -368,20 +372,17 @@ bool PlaceShipsScene::ProcessInput(const AppEvent& event)
 		return true;
 	}
 
-	if (IsSystemTurnLeftEvent(event) || IsSystemTurnRightEvent(event) && (state == PlaceState::PLACE_SHIP || state == PlaceState::EDIT_SHIP))
-	{
-		current_ship.Rotate();
-		return true;
-	}	
-
 	return false;
 }
 
 #include <Data/StaticText.hpp>
 #include <DrawFunctions/DrawText.hpp>
+#include <Graphics/ShiftScreen.hpp>
 
-void PlaceShipsScene::Draw(IScreen& screen)
+void PlaceShipsScene::Draw(IScreen& _screen)
 {
+	ShiftScreen screen(&_screen, _screen.Width() > 128 ? Point2_i{16, 16} : Point2_i{0, 0});
+
 	using namespace DrawFunctions;
 
 	StaticText32 text;

@@ -49,17 +49,19 @@ GameScene::GameScene(ISceneManager* game)
 
 void GameScene::OnShow()
 {
-	data_processor.ClearLobbyData();
 	Restart();
+
+	Battleship::GameStage.Set(Battleship::my_move ? STAGE_GAME_MY_TURN : STAGE_GAME_OPP_TURN);
 }
 
 void GameScene::OnHide()
 {
-	data_processor.ClearLobbyData();
 	// Отправить сообщение о разрыве связи
 	if (!switch_revanche)
 	{
 		web_mode = false;
+		Battleship::GameStage.Set(STAGE_NONE);
+		data_processor.Enable(false);
 
 		//WebMessage msg_out = MakeGameMessage();
 		//end_request.MakeRequest(msg_out);
@@ -85,25 +87,11 @@ void GameScene::Restart()
 	pause = false;
 	pause_menu.ResetCurrentID();
 
-	fire_request.Cancel();
-	revanche_request.Cancel();
+	//fire_request.Cancel();
+	//revanche_request.Cancel();
 	revanche_answer.ResetCurrentID();
 
 	switch_revanche = false;
-	online = true;
-	ready = false;
-
-	if (web_mode)
-	{
-		check_ready_timer.Start(300);
-
-		//WebMessage msg_out = MakeGameMessage();
-//
-		//ready_request.MakeRequest(msg_out);
-
-		/// TODO:
-		//WebAckOut(msg_out);
-	}
 
 	RefreshPauseMenu();
 }
@@ -162,6 +150,108 @@ void Battleship::GameScene::ShowResult(BattleshipField::AttackResult res)
 	show_res = res;
 }
 
+bool Battleship::GameScene::OppOnline()
+{
+	uint8_t stage;
+	return Battleship::GameStage.Get(stage, Battleship::opp_id);
+}
+
+bool Battleship::GameScene::OppReady()
+{
+	if (!web_mode) 
+		return false;
+
+	uint8_t stage;
+	if (!Battleship::GameStage.Get(stage, Battleship::opp_id))
+		return false;
+
+    return stage == STAGE_GAME_MY_TURN ||
+			stage == STAGE_GAME_OPP_TURN ||
+			stage == STAGE_FINISH;
+}
+
+void Battleship::GameScene::CheckStages()
+{
+	uint8_t my_stage = GameStage.GetOrDefault();
+	uint8_t opp_stage = GameStage.GetOrDefault(opp_id);
+
+	if (winner && !opp_stage)
+	{
+		scene_manager->SwitchScene(Battleship_Scene::MAIN);
+		return;
+	}
+
+	my_move = (my_stage == STAGE_GAME_MY_TURN);
+
+	if (my_move)
+	{
+		uint8_t my_request = Request.GetOrDefault();
+		uint8_t response = Response.GetOrDefault(opp_id);
+		if (my_request == REQ_ATTACK && response)
+		{
+			if (response == RESP_ATTACK_POPAL ||
+				response == RESP_ATTACK_UBIL || 
+				response == RESP_ATTACK_MIMO)
+			{
+				BattleshipField::AttackResult res = (BattleshipField::AttackResult) (response - 1);
+				uint8_t row, col;
+				if (CursorRow.Get(row) && CursorCol.Get(col) && row && col)
+					opp_field->PutAttackResult(row - 1, col - 1, res);
+
+				Save();
+				if (res == BattleshipField::AttackResult::MIMO)
+				{
+					Request.Set(REQ_YOUR_TURN);
+					cursor.SetActive(false);
+				}
+				else
+				{
+					ShowResult(res);
+					Request.Set(REQ_NONE);
+				}
+
+				return;
+			}
+		}
+		else if (my_request == REQ_YOUR_TURN && 
+			GameStage.GetOrDefault(opp_id) == STAGE_GAME_MY_TURN)
+		{
+			Request.Set(REQ_NONE);
+			GameStage.Set(STAGE_GAME_OPP_TURN);
+			cursor.SetActive(false);
+			// Можно в принципе и сюда перенести - GameStage.Set(STAGE_GAME_OPP_TURN);
+		}
+	}
+	else
+	{
+		cursor.SetActive(false);
+
+		uint8_t request = Request.GetOrDefault(opp_id);
+		//uint8_t response = Response.GetOrDefault(opp_id);
+
+		if (!request)
+			Response.Set(RESP_NONE);
+		else if (request == REQ_ATTACK)
+		{
+			// Логика выполняется 1 раз
+			if (!Response.GetOrDefault())
+			{
+				// .. Внутренняя логика my_field.Attack
+				uint8_t result = 0;
+				uint8_t row, col;
+				if (CursorRow.Get(row, opp_id) && CursorCol.Get(col, opp_id) && row && col)
+					result = static_cast<uint8_t>(my_field->Attack(row - 1, col - 1)) + 1;
+				Response.Set(result);
+			}
+		}
+		else if (request == REQ_YOUR_TURN)
+		{
+			Response.Set(RESP_NONE);
+			GameStage.Set(STAGE_GAME_MY_TURN);
+		}
+	}
+}
+
 #include <GamesSupport/GameButtonHandlerMiddleware.hpp>
 #include <Input/SystemInputID.hpp>
 
@@ -169,41 +259,41 @@ bool GameScene::ProcessInput(const AppEvent& event)
 {
 	//if (cursor_animation.IsPlaying())
 //	return;
-	if (revanche_request.IsProcessingRequest())
-	{
-		if (revanche_answer.ProcessInput(event))
-			return true;
-		else if (IsSystemEnterEvent(event))
-		{
-			bool answer = revanche_answer.GetCurrentParam();
-
-			//WebMessage msg_out = MakeGameMessage();
+	//if (revanche_request.IsProcessingRequest())
+	//{
+	//	if (revanche_answer.ProcessInput(event))
+	//		return true;
+	//	else if (IsSystemEnterEvent(event))
+	//	{
+	//		bool answer = revanche_answer.GetCurrentParam();
 //
-			//// Сообщение ДА или НЕТ 
-			//// (на самом деле сообщение НЕТ отработано не будет, поскольку
-			//// при смене сцены будет вызван OnHide в котором будет отправлено синхро-сообщение
-			//// с гарантией доставки - а оно может обрабатываться только одно - 
-			//// нужно будет поправить в будущем)
-			//// TODO: добавить обработку нескольких гарантируемых сообщений
-			//revanche_request.MakeResponse(msg_out, answer ? YES_RESPONSE : NO_RESPONSE);
-
-			/// TODO:
-			//WebAckOut(msg_out);
-
-			// ДА
-			if (answer)
-			{
-				switch_revanche = true;
-				scene_manager->SwitchScene((uint32_t)Battleship_Scene::PLACE_SHIPS);
-			}
-			// НЕТ
-			else
-			{
-				scene_manager->SwitchScene((uint8_t)Battleship_Scene::MAIN);
-			}
-		}
-		return true;
-	}
+	//		//WebMessage msg_out = MakeGameMessage();
+////
+	//		//// Сообщение ДА или НЕТ 
+	//		//// (на самом деле сообщение НЕТ отработано не будет, поскольку
+	//		//// при смене сцены будет вызван OnHide в котором будет отправлено синхро-сообщение
+	//		//// с гарантией доставки - а оно может обрабатываться только одно - 
+	//		//// нужно будет поправить в будущем)
+	//		//// TODO: добавить обработку нескольких гарантируемых сообщений
+	//		//revanche_request.MakeResponse(msg_out, answer ? YES_RESPONSE : NO_RESPONSE);
+//
+	//		/// TODO:
+	//		//WebAckOut(msg_out);
+//
+	//		// ДА
+	//		if (answer)
+	//		{
+	//			switch_revanche = true;
+	//			scene_manager->SwitchScene((uint32_t)Battleship_Scene::PLACE_SHIPS);
+	//		}
+	//		// НЕТ
+	//		else
+	//		{
+	//			scene_manager->SwitchScene((uint8_t)Battleship_Scene::MAIN);
+	//		}
+	//	}
+	//	return true;
+	//}
 
 	if (pause)
 	{
@@ -219,12 +309,7 @@ bool GameScene::ProcessInput(const AppEvent& event)
 			}
 			else if (state == PAUSE_STATE::REVANCHE)
 			{
-				//WebMessage msg_out = MakeGameMessage();
-//
-				//revanche_request.MakeRequest(msg_out);
-
-				/// TODO:
-				//WebAckOut(msg_out);
+				GameStage.Set(STAGE_REVENGE);
 			}
 		}
 		return true;
@@ -238,7 +323,11 @@ bool GameScene::ProcessInput(const AppEvent& event)
 	GameButtonHandlerMiddleware::HandleEvent(event, IsSystemUpEvent,		up_hold_handler);
 	GameButtonHandlerMiddleware::HandleEvent(event, IsSystemDownEvent,		down_hold_handler);
 
-	if (web_mode && (!online || !ready))
+	// Управление только при отсутствии запроса
+	if (Request.GetOrDefault())
+		return false;
+
+	if (web_mode && !OppReady())
 		return true;
 
 	if (!cursor.IsActive())
@@ -272,20 +361,29 @@ bool GameScene::ProcessInput(const AppEvent& event)
 		}
 		else
 		{
-			// ходы в Web
-			if (my_move && !fire_request.IsWaitingResponse())
-			{
-				//WebMessage msg_out = MakeGameMessage();
-//
-				//// Координаты
-				//msg_out.data[6] = row + 1;
-				//msg_out.data[7] = col + 1;
-//
-				//fire_request.MakeRequest(msg_out);
+			// Пока соперник не опустит ответ, не пройдет
+			if (Response.GetOrDefault(opp_id)) 
+				return false;
+			Request.Set(REQ_ATTACK);
+			CursorRow.Set(row + 1);
+			CursorCol.Set(col + 1);
 
-				/// TODO:
-				//WebAckOut(msg_out);
-			}
+			LobbyData_Common.SendNow();
+
+			// ходы в Web
+			//if (my_move && !fire_request.IsWaitingResponse())
+			//{
+			//	//WebMessage msg_out = MakeGameMessage();
+////
+			//	//// Координаты
+			//	//msg_out.data[6] = row + 1;
+			//	//msg_out.data[7] = col + 1;
+////
+			//	//fire_request.MakeRequest(msg_out);
+//
+			//	/// TODO:
+			//	//WebAckOut(msg_out);
+			//}
 		}
 	}
 
@@ -325,9 +423,13 @@ static void DrawTextCenter(IScreen& screen, int y, StaticTextView text)
 }
 
 #include <Battleship/Bitmaps/Bitmaps.hpp>
+#include <Graphics/ShiftScreen.hpp>
+#include <LetoFunctions/Draw.hpp>
 
-void GameScene::Draw(IScreen& screen)
+void GameScene::Draw(IScreen& _screen)
 {
+	ShiftScreen screen(&_screen, _screen.Width() > 128 ? Point2_i{16, 16} : Point2_i{0, 0});
+
 	using namespace DrawFunctions;
 
 	static StaticText32 text;
@@ -335,28 +437,28 @@ void GameScene::Draw(IScreen& screen)
 	my_field->Draw(screen, {1, 1});
 	opp_field->Draw(screen, {65, 1});
 
-	if (revanche_request.IsProcessingRequest())
-	{
-		DrawWaitLines(screen);
-
-		text = "РЕВАНШ?";
-		DrawTextCenter(screen, 8, text);
-		//DrawText(screen, {64 - TextWidth(text) / 2, 8}, text);
-		revanche_answer.Draw(screen);
-		return;
-	}
-	else if (revanche_request.IsWaitingResponse())
-	{
-		DrawWaitLines(screen);
-
-		text = "ЖДЕМ";
-		DrawTextCenter(screen, 24, text);
-		//DrawText(screen, {64 - TextWidth(text) / 2, 24}, text);
-		text = "ОТВЕТА";
-		DrawTextCenter(screen, 32, text);
-		//DrawText(screen, {64 - TextWidth(text) / 2, 32}, text);
-		return;
-	}
+	//if (revanche_request.IsProcessingRequest())
+	//{
+	//	DrawWaitLines(screen);
+//
+	//	text = "РЕВАНШ?";
+	//	DrawTextCenter(screen, 8, text);
+	//	//DrawText(screen, {64 - TextWidth(text) / 2, 8}, text);
+	//	revanche_answer.Draw(screen);
+	//	return;
+	//}
+	//else if (revanche_request.IsWaitingResponse())
+	//{
+	//	DrawWaitLines(screen);
+//
+	//	text = "ЖДЕМ";
+	//	DrawTextCenter(screen, 24, text);
+	//	//DrawText(screen, {64 - TextWidth(text) / 2, 24}, text);
+	//	text = "ОТВЕТА";
+	//	DrawTextCenter(screen, 32, text);
+	//	//DrawText(screen, {64 - TextWidth(text) / 2, 32}, text);
+	//	return;
+	//}
 
 	if (pause)
 	{
@@ -384,17 +486,34 @@ void GameScene::Draw(IScreen& screen)
 
 		int sin_motion = static_cast<int>(2 * leto_api_v1->Math->sinf(50 * progress));
 
+		/**
+		 * 
+		 * 
+            leto_api_v1->Graphics->DrawBitmap(IScreen::ToHandle(&screen), 15, 35, BM_Popal_Outlined_rotated, BlackColor, false);
+            leto_api_v1->Graphics->DrawBitmap(IScreen::ToHandle(&screen), 15, 35, BM_Popal_Big_rotated,      WhiteColor, false);
+            leto_api_v1->Graphics->DrawBitmap(IScreen::ToHandle(&screen), 95, 35, BM_Ubil_Outlined_rotated,  BlackColor, false);
+            leto_api_v1->Graphics->DrawBitmap(IScreen::ToHandle(&screen), 95, 35, BM_Ubil_Big_rotated,       WhiteColor, false);
+
+		 */
+
 		if (show_res == BattleshipField::AttackResult::POPAL)
-			DrawBitmap(screen, {6, progress < 0.25f ? 20 + sin_motion : 20}, BM_PopalText, WhiteColor, BlackColor);
+		{
+			leto_api_v1->Graphics->DrawBitmap(IScreen::ToHandle(&screen), 6, progress < 0.25f ? 20 + sin_motion : 20, BM_Popal_Sticker, BlackColor, false);
+			leto_api_v1->Graphics->DrawBitmap(IScreen::ToHandle(&screen), 6, progress < 0.25f ? 20 + sin_motion : 20, BM_Popal_Top, WhiteColor, false);
+
+		}
 		else if (show_res == BattleshipField::AttackResult::UBIL)
-			DrawBitmap(screen, {6, 20 + sin_motion}, BM_UbilText, WhiteColor, BlackColor);
+		{
+			leto_api_v1->Graphics->DrawBitmap(IScreen::ToHandle(&screen), 6, 20 + sin_motion, BM_Ubil_Sticker, BlackColor, false);
+			leto_api_v1->Graphics->DrawBitmap(IScreen::ToHandle(&screen), 6, 20 + sin_motion, BM_Ubil_Top, WhiteColor, false);
+		}
 	}
 
 	const IFont* font = IFont::FromHandle(leto_api_v1->Font->GetFont(7, 7, 1));
 
 	if (web_mode)
 	{
-		if (!online)
+		if (!OppOnline())
 		{
 			DrawWaitLines(screen);
 
@@ -407,7 +526,7 @@ void GameScene::Draw(IScreen& screen)
 			return;
 
 		}
-		else if (!ready)
+		else if (!OppReady())
 		{
 			DrawWaitLines(screen);
 
@@ -443,7 +562,7 @@ void GameScene::Loop()
 			right_hold_handler.Release();
 		}
 	}
-	else if (!web_mode || ready && online)
+	else if (!web_mode || OppReady())
 	{
 		if (left_hold_handler.WaitHolded(300, 100))
 		{
@@ -468,17 +587,17 @@ void GameScene::Loop()
 		}
 	}
 
-	if (ready_request.IsWaitingResponse() && check_ready_timer.Expired())
-	{
-		//WebMessage msg_out = MakeGameMessage();
+	//if (ready_request.IsWaitingResponse() && check_ready_timer.Expired())
+	//{
+	//	//WebMessage msg_out = MakeGameMessage();
+////
+	//	//ready_request.MakeRequest(msg_out);
 //
-		//ready_request.MakeRequest(msg_out);
-
-		/// TODO:
-		//WebAckOut(msg_out);
-
-		check_ready_timer.Start();
-	}
+	//	/// TODO:
+	//	//WebAckOut(msg_out);
+//
+	//	check_ready_timer.Start();
+	//}
 
 	int cur_row, cur_col;
 	cursor.GetCell(cur_row, cur_col);
@@ -506,22 +625,7 @@ void GameScene::Loop()
 
 	if (web_mode)
 	{
-		if (!my_move)
-			cursor.SetActive(false);
-
-		online = false;
-
-		WebDeviceInfo_V1 info[8];
-		uint32_t count = leto_api_v1->Web->GetDevicesNear(info, sizeof(info) / sizeof(WebDeviceInfo_V1));
-
-		for (uint32_t i = 0; i < count; ++i)
-		{
-			if (info[i].channel == opp_channel)
-			{
-				online = true;
-				break;
-			}
-		}
+		CheckStages();
 	}
 
 	opp_field->SetCursorActive(cursor.IsActive());
