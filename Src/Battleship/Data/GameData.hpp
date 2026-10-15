@@ -87,6 +87,8 @@ namespace Battleship
 			u_data[2] = Response.GetOrDefault();
 			u_data[3] = CursorX.GetOrDefault();
 			u_data[4] = CursorY.GetOrDefault();
+
+			return true;
 		}
 		
 		void OnReceive(uint32_t id, const void* data, uint32_t size) override
