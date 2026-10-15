@@ -40,7 +40,6 @@ namespace Battleship
 	{
 		STAGE_NONE,
 		STAGE_PLACE_SHIPS,
-		STAGE_READY_TO_START,
 		STAGE_GAME_MY_TURN, 	// REQ_ATTACK
 		STAGE_GAME_OPP_TURN,
 		STAGE_FINISH
@@ -102,6 +101,15 @@ namespace Battleship
 			Response.Set(u_data[2], id);
 			CursorX.Set(u_data[3], id);
 			CursorY.Set(u_data[4], id);
+		}
+
+		void OnTimeout() override
+		{
+			GameStage.Clear(opp_id);
+			Request.Clear(opp_id);
+			Response.Clear(opp_id);
+			CursorX.Clear(opp_id);
+			CursorY.Clear(opp_id);
 		}
 	}
 	LobbyData_Common;

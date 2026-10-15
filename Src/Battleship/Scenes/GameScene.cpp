@@ -91,19 +91,6 @@ void GameScene::Restart()
 
 	switch_revanche = false;
 	online = true;
-	ready = false;
-
-	if (web_mode)
-	{
-		check_ready_timer.Start(300);
-
-		//WebMessage msg_out = MakeGameMessage();
-//
-		//ready_request.MakeRequest(msg_out);
-
-		/// TODO:
-		//WebAckOut(msg_out);
-	}
 
 	RefreshPauseMenu();
 }
@@ -160,6 +147,20 @@ void Battleship::GameScene::ShowResult(BattleshipField::AttackResult res)
 {
 	show_res_timer.Start(1500);
 	show_res = res;
+}
+
+bool Battleship::GameScene::OppReady()
+{
+	if (!online) 
+		return false;
+
+	uint8_t stage;
+	if (!Battleship::GameStage.Get(stage, Battleship::opp_id))
+		return false;
+
+    return stage == STAGE_GAME_MY_TURN ||
+			stage == STAGE_GAME_OPP_TURN ||
+			stage == STAGE_FINISH;
 }
 
 #include <GamesSupport/GameButtonHandlerMiddleware.hpp>
@@ -238,7 +239,7 @@ bool GameScene::ProcessInput(const AppEvent& event)
 	GameButtonHandlerMiddleware::HandleEvent(event, IsSystemUpEvent,		up_hold_handler);
 	GameButtonHandlerMiddleware::HandleEvent(event, IsSystemDownEvent,		down_hold_handler);
 
-	if (web_mode && (!online || !ready))
+	if (web_mode && (!online || !OppReady()))
 		return true;
 
 	if (!cursor.IsActive())
@@ -407,7 +408,7 @@ void GameScene::Draw(IScreen& screen)
 			return;
 
 		}
-		else if (!ready)
+		else if (!OppReady())
 		{
 			DrawWaitLines(screen);
 
@@ -443,7 +444,7 @@ void GameScene::Loop()
 			right_hold_handler.Release();
 		}
 	}
-	else if (!web_mode || ready && online)
+	else if (!web_mode || OppReady() && online)
 	{
 		if (left_hold_handler.WaitHolded(300, 100))
 		{

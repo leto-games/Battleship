@@ -35,12 +35,6 @@ namespace Battleship
 		// Для режима Web 
 		bool online{};
 
-		// Таймер проверки, что соединение установлено
-		Timer check_ready_timer;
-
-		// Режим готовности
-		bool ready{};
-
 		// 1 - я, 2 - другой
 		int winner{};
 
@@ -70,6 +64,8 @@ namespace Battleship
 		short show_res_part = 0;
 		BattleshipField::AttackResult show_res{};
 		void ShowResult(BattleshipField::AttackResult res);
+
+		bool OppReady();
 
 	public:
 		GameScene(ISceneManager* game);
