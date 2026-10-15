@@ -48,7 +48,9 @@ void battleship_ready()
 	Battleship::opp_name = info.web_name;
 	Battleship::opp_channel = info.channel;
 	Battleship::opp_avatar = info.avatar_id;
+	Battleship::opp_id = info.id;
 
+	data_processor.Enable(true);
 	GameInstance->SwitchScene(Battleship_Scene::PLACE_SHIPS);
 }
 
@@ -68,9 +70,11 @@ bool BattleshipGame::CustomInit()
 	AddSceneBuilder<ChooseGameModeScene>(Battleship_Scene::CHOOSE_GM);
 	AddSceneBuilder<PlaceShipsScene>(Battleship_Scene::PLACE_SHIPS);
 	AddSceneBuilder<GameScene>(Battleship_Scene::GAME);
-	AddSceneBuilder<TestScene>(Battleship_Scene::TEST);
+	//AddSceneBuilder<TestScene>(Battleship_Scene::TEST);
 
 	AddSceneBuilder<LobbyScene>(Battleship_Scene::PLAY_WEB, 2, &battleship_callback, &battleship_callback, &battleship_ready);
+
+	data_processor.RegLobbyData(&Battleship::LobbyData_Common);
 
 	//PrepareWebGameScene* prepare_web = AddGameScene<PrepareWebGameScene>(
 	//	Battleship_Scene::PLAY_WEB,	this, 
@@ -97,6 +101,14 @@ void BattleshipGame::CustomClose()
 void BattleshipGame::CustomLoop()
 {
 	data_processor.Loop();
+}
+
+void BattleshipGame::Draw(IScreen &screen)
+{
+	BaseGame::Draw(screen);
+
+	DrawFunctions::DrawText(screen, {0,0}, to_text(Battleship::GameStage.GetOrDefault()));
+	DrawFunctions::DrawText(screen, {0,10}, to_text(Battleship::GameStage.GetOrDefault(Battleship::opp_id)));
 }
 
 BattleshipGame* GameInstance = nullptr;

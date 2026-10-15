@@ -49,13 +49,13 @@ GameScene::GameScene(ISceneManager* game)
 
 void GameScene::OnShow()
 {
-	data_processor.ClearLobbyData();
 	Restart();
+
+	Battleship::GameStage.Set(Battleship::my_move ? STAGE_GAME_MY_TURN : STAGE_GAME_OPP_TURN);
 }
 
 void GameScene::OnHide()
 {
-	data_processor.ClearLobbyData();
 	// Отправить сообщение о разрыве связи
 	if (!switch_revanche)
 	{
@@ -85,8 +85,8 @@ void GameScene::Restart()
 	pause = false;
 	pause_menu.ResetCurrentID();
 
-	fire_request.Cancel();
-	revanche_request.Cancel();
+	//fire_request.Cancel();
+	//revanche_request.Cancel();
 	revanche_answer.ResetCurrentID();
 
 	switch_revanche = false;
@@ -169,41 +169,41 @@ bool GameScene::ProcessInput(const AppEvent& event)
 {
 	//if (cursor_animation.IsPlaying())
 //	return;
-	if (revanche_request.IsProcessingRequest())
-	{
-		if (revanche_answer.ProcessInput(event))
-			return true;
-		else if (IsSystemEnterEvent(event))
-		{
-			bool answer = revanche_answer.GetCurrentParam();
-
-			//WebMessage msg_out = MakeGameMessage();
+	//if (revanche_request.IsProcessingRequest())
+	//{
+	//	if (revanche_answer.ProcessInput(event))
+	//		return true;
+	//	else if (IsSystemEnterEvent(event))
+	//	{
+	//		bool answer = revanche_answer.GetCurrentParam();
 //
-			//// Сообщение ДА или НЕТ 
-			//// (на самом деле сообщение НЕТ отработано не будет, поскольку
-			//// при смене сцены будет вызван OnHide в котором будет отправлено синхро-сообщение
-			//// с гарантией доставки - а оно может обрабатываться только одно - 
-			//// нужно будет поправить в будущем)
-			//// TODO: добавить обработку нескольких гарантируемых сообщений
-			//revanche_request.MakeResponse(msg_out, answer ? YES_RESPONSE : NO_RESPONSE);
-
-			/// TODO:
-			//WebAckOut(msg_out);
-
-			// ДА
-			if (answer)
-			{
-				switch_revanche = true;
-				scene_manager->SwitchScene((uint32_t)Battleship_Scene::PLACE_SHIPS);
-			}
-			// НЕТ
-			else
-			{
-				scene_manager->SwitchScene((uint8_t)Battleship_Scene::MAIN);
-			}
-		}
-		return true;
-	}
+	//		//WebMessage msg_out = MakeGameMessage();
+////
+	//		//// Сообщение ДА или НЕТ 
+	//		//// (на самом деле сообщение НЕТ отработано не будет, поскольку
+	//		//// при смене сцены будет вызван OnHide в котором будет отправлено синхро-сообщение
+	//		//// с гарантией доставки - а оно может обрабатываться только одно - 
+	//		//// нужно будет поправить в будущем)
+	//		//// TODO: добавить обработку нескольких гарантируемых сообщений
+	//		//revanche_request.MakeResponse(msg_out, answer ? YES_RESPONSE : NO_RESPONSE);
+//
+	//		/// TODO:
+	//		//WebAckOut(msg_out);
+//
+	//		// ДА
+	//		if (answer)
+	//		{
+	//			switch_revanche = true;
+	//			scene_manager->SwitchScene((uint32_t)Battleship_Scene::PLACE_SHIPS);
+	//		}
+	//		// НЕТ
+	//		else
+	//		{
+	//			scene_manager->SwitchScene((uint8_t)Battleship_Scene::MAIN);
+	//		}
+	//	}
+	//	return true;
+	//}
 
 	if (pause)
 	{
@@ -273,19 +273,19 @@ bool GameScene::ProcessInput(const AppEvent& event)
 		else
 		{
 			// ходы в Web
-			if (my_move && !fire_request.IsWaitingResponse())
-			{
-				//WebMessage msg_out = MakeGameMessage();
+			//if (my_move && !fire_request.IsWaitingResponse())
+			//{
+			//	//WebMessage msg_out = MakeGameMessage();
+////
+			//	//// Координаты
+			//	//msg_out.data[6] = row + 1;
+			//	//msg_out.data[7] = col + 1;
+////
+			//	//fire_request.MakeRequest(msg_out);
 //
-				//// Координаты
-				//msg_out.data[6] = row + 1;
-				//msg_out.data[7] = col + 1;
-//
-				//fire_request.MakeRequest(msg_out);
-
-				/// TODO:
-				//WebAckOut(msg_out);
-			}
+			//	/// TODO:
+			//	//WebAckOut(msg_out);
+			//}
 		}
 	}
 
@@ -335,28 +335,28 @@ void GameScene::Draw(IScreen& screen)
 	my_field->Draw(screen, {1, 1});
 	opp_field->Draw(screen, {65, 1});
 
-	if (revanche_request.IsProcessingRequest())
-	{
-		DrawWaitLines(screen);
-
-		text = "РЕВАНШ?";
-		DrawTextCenter(screen, 8, text);
-		//DrawText(screen, {64 - TextWidth(text) / 2, 8}, text);
-		revanche_answer.Draw(screen);
-		return;
-	}
-	else if (revanche_request.IsWaitingResponse())
-	{
-		DrawWaitLines(screen);
-
-		text = "ЖДЕМ";
-		DrawTextCenter(screen, 24, text);
-		//DrawText(screen, {64 - TextWidth(text) / 2, 24}, text);
-		text = "ОТВЕТА";
-		DrawTextCenter(screen, 32, text);
-		//DrawText(screen, {64 - TextWidth(text) / 2, 32}, text);
-		return;
-	}
+	//if (revanche_request.IsProcessingRequest())
+	//{
+	//	DrawWaitLines(screen);
+//
+	//	text = "РЕВАНШ?";
+	//	DrawTextCenter(screen, 8, text);
+	//	//DrawText(screen, {64 - TextWidth(text) / 2, 8}, text);
+	//	revanche_answer.Draw(screen);
+	//	return;
+	//}
+	//else if (revanche_request.IsWaitingResponse())
+	//{
+	//	DrawWaitLines(screen);
+//
+	//	text = "ЖДЕМ";
+	//	DrawTextCenter(screen, 24, text);
+	//	//DrawText(screen, {64 - TextWidth(text) / 2, 24}, text);
+	//	text = "ОТВЕТА";
+	//	DrawTextCenter(screen, 32, text);
+	//	//DrawText(screen, {64 - TextWidth(text) / 2, 32}, text);
+	//	return;
+	//}
 
 	if (pause)
 	{
@@ -468,17 +468,17 @@ void GameScene::Loop()
 		}
 	}
 
-	if (ready_request.IsWaitingResponse() && check_ready_timer.Expired())
-	{
-		//WebMessage msg_out = MakeGameMessage();
+	//if (ready_request.IsWaitingResponse() && check_ready_timer.Expired())
+	//{
+	//	//WebMessage msg_out = MakeGameMessage();
+////
+	//	//ready_request.MakeRequest(msg_out);
 //
-		//ready_request.MakeRequest(msg_out);
-
-		/// TODO:
-		//WebAckOut(msg_out);
-
-		check_ready_timer.Start();
-	}
+	//	/// TODO:
+	//	//WebAckOut(msg_out);
+//
+	//	check_ready_timer.Start();
+	//}
 
 	int cur_row, cur_col;
 	cursor.GetCell(cur_row, cur_col);

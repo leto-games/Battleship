@@ -212,6 +212,8 @@ void PlaceShipsScene::OnShow()
 	delete_loaded_memory.ResetCurrentID();
 	state = PlaceState::CHOOSE_SHIP;
 
+	Battleship::GameStage.Set(STAGE_PLACE_SHIPS);
+
 	BattleshipSave save{};
 	//if (web_mode && GameSave.Get(save))
 	//{
