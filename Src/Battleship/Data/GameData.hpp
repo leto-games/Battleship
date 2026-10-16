@@ -66,8 +66,8 @@ namespace Battleship
 	};
 	extern BattleshipCell<uint8_t> Response;
 
-	extern BattleshipCell<uint8_t> CursorX;
-	extern BattleshipCell<uint8_t> CursorY;
+	extern BattleshipCell<uint8_t> CursorRow;
+	extern BattleshipCell<uint8_t> CursorCol;
 
 	extern LobbyDataProcessor data_processor;
 
@@ -84,8 +84,8 @@ namespace Battleship
 			u_data[0] = GameStage.GetOrDefault();
 			u_data[1] = Request.GetOrDefault();
 			u_data[2] = Response.GetOrDefault();
-			u_data[3] = CursorX.GetOrDefault();
-			u_data[4] = CursorY.GetOrDefault();
+			u_data[3] = CursorRow.GetOrDefault();
+			u_data[4] = CursorCol.GetOrDefault();
 
 			return true;
 		}
@@ -99,8 +99,8 @@ namespace Battleship
 			GameStage.Set(u_data[0], id);
 			Request.Set(u_data[1], id);
 			Response.Set(u_data[2], id);
-			CursorX.Set(u_data[3], id);
-			CursorY.Set(u_data[4], id);
+			CursorRow.Set(u_data[3], id);
+			CursorCol.Set(u_data[4], id);
 		}
 
 		void OnTimeout() override
@@ -108,8 +108,8 @@ namespace Battleship
 			GameStage.Clear(opp_id);
 			Request.Clear(opp_id);
 			Response.Clear(opp_id);
-			CursorX.Clear(opp_id);
-			CursorY.Clear(opp_id);
+			CursorRow.Clear(opp_id);
+			CursorCol.Clear(opp_id);
 		}
 	}
 	LobbyData_Common;

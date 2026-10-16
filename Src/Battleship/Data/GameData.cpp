@@ -16,8 +16,8 @@ namespace Battleship
 	BattleshipCell<uint8_t> GameStage;
 	BattleshipCell<uint8_t> Request;
 	BattleshipCell<uint8_t> Response;
-	BattleshipCell<uint8_t> CursorX;
-	BattleshipCell<uint8_t> CursorY;
+	BattleshipCell<uint8_t> CursorRow;
+	BattleshipCell<uint8_t> CursorCol;
 
 	LobbyDataProcessor data_processor;
 
