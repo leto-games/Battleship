@@ -530,6 +530,13 @@ void GameScene::Loop()
 		uint8_t my_stage = GameStage.GetOrDefault();
 		my_move = (my_stage == STAGE_GAME_MY_TURN);
 
+		uint8_t oth_stage;
+		if (winner && !GameStage.Get(oth_stage, opp_id))
+		{
+			scene_manager->SwitchScene(Battleship_Scene::MAIN);
+			return;
+		}
+
 		if (!my_move)
 		{
 			cursor.SetActive(false);
@@ -577,6 +584,7 @@ void GameScene::Loop()
 					if (res == BattleshipField::AttackResult::MIMO)
 					{
 						Request.Set(REQ_YOUR_TURN);
+						cursor.SetActive(false);
 					}
 					else
 					{
