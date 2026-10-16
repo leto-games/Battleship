@@ -12,7 +12,6 @@ BattleshipGame::BattleshipGame(const AppBinHeader& header) : BaseGame{ header }
 #include "Scenes/SceneID.hpp"
 #include "Scenes/TestScene.hpp"
 
-//#include <GamesSupport/PrepareWebGameScene.hpp>
 #include "Data/GameData.hpp"
 #include "Bitmaps/Bitmaps.hpp"
 #include "Bitmaps/BitmapsWithEffects.hpp"
@@ -60,8 +59,6 @@ bool BattleshipGame::CustomInit()
 
 	//InitStickers(LoadedGameAllocator());
 	
-	//static BattleshipMyField my;
-	//static BattleshipOppField opp;
 	my_field = leto_new BattleshipMyField;
 	opp_field = leto_new BattleshipOppField;
 
@@ -75,18 +72,6 @@ bool BattleshipGame::CustomInit()
 	AddSceneBuilder<LobbyScene>(Battleship_Scene::PLAY_WEB, 2, &battleship_callback, &battleship_callback, &battleship_ready);
 
 	data_processor.RegLobbyData(&Battleship::LobbyData_Common);
-
-	//PrepareWebGameScene* prepare_web = AddGameScene<PrepareWebGameScene>(
-	//	Battleship_Scene::PLAY_WEB,	this, 
-	//	&Battleship::opp_name, &Battleship::opp_avatar, &Battleship::opp_channel, (uint8_t)Battleship_Scene::PLACE_SHIPS
-	//);
-	//prepare_web->SetParams(&Battleship::web_mode, &Battleship::my_move);
-
-	//CurrentSpace = leto_api_v1->User->GetUserSpace();
-	//if (!CurrentSpace)
-	//{
-	//	/// TODO: Сделать обработку, если не получено пространство
-	//}
 
 	SwitchScene((uint8_t) Battleship_Scene::WELCOME);
 	return true;
@@ -112,12 +97,3 @@ void BattleshipGame::Draw(IScreen &screen)
 }
 
 BattleshipGame* GameInstance = nullptr;
-
-//void BattleshipGame::CommonWebIn(const WebMessage& msg_in)
-//{
-//	// Запрос начала игры
-//	if (start_request.ProcessRequest(msg_in))
-//	{
-//		SwitchScene((uint8_t) Battleship_Scene::PLAY_WEB);
-//	}
-//}

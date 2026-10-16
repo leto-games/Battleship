@@ -60,6 +60,8 @@ void GameScene::OnHide()
 	if (!switch_revanche)
 	{
 		web_mode = false;
+		Battleship::GameStage.Set(STAGE_NONE);
+		data_processor.Enable(false);
 
 		//WebMessage msg_out = MakeGameMessage();
 		//end_request.MakeRequest(msg_out);
@@ -90,7 +92,6 @@ void GameScene::Restart()
 	revanche_answer.ResetCurrentID();
 
 	switch_revanche = false;
-	online = true;
 
 	RefreshPauseMenu();
 }
@@ -149,9 +150,15 @@ void Battleship::GameScene::ShowResult(BattleshipField::AttackResult res)
 	show_res = res;
 }
 
+bool Battleship::GameScene::OppOnline()
+{
+	uint8_t stage;
+	return Battleship::GameStage.Get(stage, Battleship::opp_id);
+}
+
 bool Battleship::GameScene::OppReady()
 {
-	if (!online) 
+	if (!web_mode) 
 		return false;
 
 	uint8_t stage;
@@ -168,10 +175,6 @@ bool Battleship::GameScene::OppReady()
 
 bool GameScene::ProcessInput(const AppEvent& event)
 {
-	// Управление только при отсутствии запроса
-	if (Request.GetOrDefault())
-		return false;
-
 	//if (cursor_animation.IsPlaying())
 //	return;
 	//if (revanche_request.IsProcessingRequest())
@@ -243,7 +246,11 @@ bool GameScene::ProcessInput(const AppEvent& event)
 	GameButtonHandlerMiddleware::HandleEvent(event, IsSystemUpEvent,		up_hold_handler);
 	GameButtonHandlerMiddleware::HandleEvent(event, IsSystemDownEvent,		down_hold_handler);
 
-	if (web_mode && (!online || !OppReady()))
+	// Управление только при отсутствии запроса
+	if (Request.GetOrDefault())
+		return false;
+
+	if (web_mode && !OppReady())
 		return true;
 
 	if (!cursor.IsActive())
@@ -408,7 +415,7 @@ void GameScene::Draw(IScreen& screen)
 
 	if (web_mode)
 	{
-		if (!online)
+		if (!OppOnline())
 		{
 			DrawWaitLines(screen);
 
@@ -457,7 +464,7 @@ void GameScene::Loop()
 			right_hold_handler.Release();
 		}
 	}
-	else if (!web_mode || OppReady() && online)
+	else if (!web_mode || OppReady())
 	{
 		if (left_hold_handler.WaitHolded(300, 100))
 		{
@@ -585,21 +592,8 @@ void GameScene::Loop()
 			{
 				Request.Set(REQ_NONE);
 				GameStage.Set(STAGE_GAME_OPP_TURN);
+				cursor.SetActive(false);
 				// Можно в принципе и сюда перенести - GameStage.Set(STAGE_GAME_OPP_TURN);
-			}
-		}
-
-		online = false;
-
-		WebDeviceInfo_V1 info[8];
-		uint32_t count = leto_api_v1->Web->GetDevicesNear(info, sizeof(info) / sizeof(WebDeviceInfo_V1));
-
-		for (uint32_t i = 0; i < count; ++i)
-		{
-			if (info[i].channel == opp_channel)
-			{
-				online = true;
-				break;
 			}
 		}
 	}

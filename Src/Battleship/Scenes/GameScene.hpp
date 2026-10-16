@@ -32,9 +32,6 @@ namespace Battleship
 		// Пауза игры
 		bool pause{};
 
-		// Для режима Web 
-		bool online{};
-
 		// 1 - я, 2 - другой
 		int winner{};
 
@@ -65,6 +62,7 @@ namespace Battleship
 		BattleshipField::AttackResult show_res{};
 		void ShowResult(BattleshipField::AttackResult res);
 
+		bool OppOnline();
 		bool OppReady();
 
 	public:

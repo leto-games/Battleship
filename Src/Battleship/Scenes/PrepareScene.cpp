@@ -353,6 +353,8 @@ bool PlaceShipsScene::ProcessInput(const AppEvent& event)
 			current_ship.Left();
 		else if (IsSystemRightEvent(event))
 			current_ship.Right();
+		else if (IsSystemTurnLeftEvent(event) || IsSystemTurnRightEvent(event))
+			current_ship.Rotate();
 		else if (IsSystemEnterEvent(event))
 		{
 			// Обновить количество кораблей
@@ -369,12 +371,6 @@ bool PlaceShipsScene::ProcessInput(const AppEvent& event)
 		}
 		return true;
 	}
-
-	if (IsSystemTurnLeftEvent(event) || IsSystemTurnRightEvent(event) && (state == PlaceState::PLACE_SHIP || state == PlaceState::EDIT_SHIP))
-	{
-		current_ship.Rotate();
-		return true;
-	}	
 
 	return false;
 }

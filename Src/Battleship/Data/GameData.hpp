@@ -73,7 +73,7 @@ namespace Battleship
 
 	extern struct CommonInfo : public LobbyData
 	{
-		CommonInfo(uint8_t data_id) : LobbyData(data_id, 200) { }
+		CommonInfo(uint8_t data_id) : LobbyData(data_id, 100) { }
 		
 		bool OnSend(void* data, uint32_t size) override
 		{
