@@ -377,9 +377,12 @@ bool PlaceShipsScene::ProcessInput(const AppEvent& event)
 
 #include <Data/StaticText.hpp>
 #include <DrawFunctions/DrawText.hpp>
+#include <Graphics/ShiftScreen.hpp>
 
-void PlaceShipsScene::Draw(IScreen& screen)
+void PlaceShipsScene::Draw(IScreen& _screen)
 {
+	ShiftScreen screen(&_screen, _screen.Width() > 128 ? Point2_i{16, 16} : Point2_i{0, 0});
+
 	using namespace DrawFunctions;
 
 	StaticText32 text;

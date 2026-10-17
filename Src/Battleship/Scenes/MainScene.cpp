@@ -14,6 +14,7 @@ using namespace Battleship;
 // ----------------------------------------------------------------------------------------------------
 
 #include <DrawFunctions/DrawBitmap.hpp>
+#include <Graphics/ShiftScreen.hpp>
 
 WelcomeScene::WelcomeScene(ISceneManager* game) :
 	IScene{ game }
@@ -21,8 +22,10 @@ WelcomeScene::WelcomeScene(ISceneManager* game) :
 	welcome_timer.Start(600);
 }
 
-void WelcomeScene::Draw(IScreen& screen)
+void WelcomeScene::Draw(IScreen& _screen)
 {
+	ShiftScreen screen(&_screen, _screen.Width() > 128 ? Point2_i{16, 16} : Point2_i{0, 0});
+
 	if (welcome_part >= 3)
 	{
 		scene_manager->SwitchScene((uint8_t) Battleship_Scene::MAIN);
@@ -126,8 +129,10 @@ void MainScene::Loop()
 
 #include <LetoFunctions/Draw.hpp>
 
-void MainScene::Draw(IScreen& screen)
+void MainScene::Draw(IScreen& _screen)
 {
+	ShiftScreen screen(&_screen, _screen.Width() > 128 ? Point2_i{16, 16} : Point2_i{0, 0});
+
 	// Перезагрузка анимации
 	if (!ship_animation.IsPlaying())
 	{
@@ -235,8 +240,10 @@ bool ChooseGameModeScene::ProcessInput(const AppEvent& event)
 	return MainScene::ProcessInput(event);
 }
 
-void ChooseGameModeScene::Draw(IScreen& screen)
+void ChooseGameModeScene::Draw(IScreen& _screen)
 {
+	ShiftScreen screen(&_screen, _screen.Width() > 128 ? Point2_i{16, 16} : Point2_i{0, 0});
+
 	menu.Draw(screen);
 
 	if (reset_timer.Expired() && order >= 0 && order <= 100)

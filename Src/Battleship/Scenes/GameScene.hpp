@@ -65,6 +65,8 @@ namespace Battleship
 		bool OppOnline();
 		bool OppReady();
 
+		void CheckStages();
+
 	public:
 		GameScene(ISceneManager* game);
 

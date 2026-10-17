@@ -42,7 +42,8 @@ namespace Battleship
 		STAGE_PLACE_SHIPS,
 		STAGE_GAME_MY_TURN, 	// REQ_ATTACK
 		STAGE_GAME_OPP_TURN,
-		STAGE_FINISH
+		STAGE_FINISH,
+		STAGE_REVENGE
 	};
 	extern BattleshipCell<uint8_t> GameStage;
 
@@ -50,7 +51,6 @@ namespace Battleship
 	{
 		REQ_NONE,
 		REQ_ATTACK, // Запрос на атаку (активируется только из NONE -> REQ_ATTACK)
-		REQ_REVENGE,
 		REQ_YOUR_TURN
 	};
 	extern BattleshipCell<uint8_t> Request;

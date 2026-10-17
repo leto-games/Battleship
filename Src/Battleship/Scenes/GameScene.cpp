@@ -170,6 +170,88 @@ bool Battleship::GameScene::OppReady()
 			stage == STAGE_FINISH;
 }
 
+void Battleship::GameScene::CheckStages()
+{
+	uint8_t my_stage = GameStage.GetOrDefault();
+	uint8_t opp_stage = GameStage.GetOrDefault(opp_id);
+
+	if (winner && !opp_stage)
+	{
+		scene_manager->SwitchScene(Battleship_Scene::MAIN);
+		return;
+	}
+
+	my_move = (my_stage == STAGE_GAME_MY_TURN);
+
+	if (my_move)
+	{
+		uint8_t my_request = Request.GetOrDefault();
+		uint8_t response = Response.GetOrDefault(opp_id);
+		if (my_request == REQ_ATTACK && response)
+		{
+			if (response == RESP_ATTACK_POPAL ||
+				response == RESP_ATTACK_UBIL || 
+				response == RESP_ATTACK_MIMO)
+			{
+				BattleshipField::AttackResult res = (BattleshipField::AttackResult) (response - 1);
+				uint8_t row, col;
+				if (CursorRow.Get(row) && CursorCol.Get(col) && row && col)
+					opp_field->PutAttackResult(row - 1, col - 1, res);
+
+				Save();
+				if (res == BattleshipField::AttackResult::MIMO)
+				{
+					Request.Set(REQ_YOUR_TURN);
+					cursor.SetActive(false);
+				}
+				else
+				{
+					ShowResult(res);
+					Request.Set(REQ_NONE);
+				}
+
+				return;
+			}
+		}
+		else if (my_request == REQ_YOUR_TURN && 
+			GameStage.GetOrDefault(opp_id) == STAGE_GAME_MY_TURN)
+		{
+			Request.Set(REQ_NONE);
+			GameStage.Set(STAGE_GAME_OPP_TURN);
+			cursor.SetActive(false);
+			// Можно в принципе и сюда перенести - GameStage.Set(STAGE_GAME_OPP_TURN);
+		}
+	}
+	else
+	{
+		cursor.SetActive(false);
+
+		uint8_t request = Request.GetOrDefault(opp_id);
+		//uint8_t response = Response.GetOrDefault(opp_id);
+
+		if (!request)
+			Response.Set(RESP_NONE);
+		else if (request == REQ_ATTACK)
+		{
+			// Логика выполняется 1 раз
+			if (!Response.GetOrDefault())
+			{
+				// .. Внутренняя логика my_field.Attack
+				uint8_t result = 0;
+				uint8_t row, col;
+				if (CursorRow.Get(row, opp_id) && CursorCol.Get(col, opp_id) && row && col)
+					result = static_cast<uint8_t>(my_field->Attack(row - 1, col - 1)) + 1;
+				Response.Set(result);
+			}
+		}
+		else if (request == REQ_YOUR_TURN)
+		{
+			Response.Set(RESP_NONE);
+			GameStage.Set(STAGE_GAME_MY_TURN);
+		}
+	}
+}
+
 #include <GamesSupport/GameButtonHandlerMiddleware.hpp>
 #include <Input/SystemInputID.hpp>
 
@@ -227,12 +309,7 @@ bool GameScene::ProcessInput(const AppEvent& event)
 			}
 			else if (state == PAUSE_STATE::REVANCHE)
 			{
-				//WebMessage msg_out = MakeGameMessage();
-//
-				//revanche_request.MakeRequest(msg_out);
-
-				/// TODO:
-				//WebAckOut(msg_out);
+				GameStage.Set(STAGE_REVENGE);
 			}
 		}
 		return true;
@@ -346,9 +423,12 @@ static void DrawTextCenter(IScreen& screen, int y, StaticTextView text)
 }
 
 #include <Battleship/Bitmaps/Bitmaps.hpp>
+#include <Graphics/ShiftScreen.hpp>
 
-void GameScene::Draw(IScreen& screen)
+void GameScene::Draw(IScreen& _screen)
 {
+	ShiftScreen screen(&_screen, _screen.Width() > 128 ? Point2_i{16, 16} : Point2_i{0, 0});
+
 	using namespace DrawFunctions;
 
 	static StaticText32 text;
@@ -527,83 +607,7 @@ void GameScene::Loop()
 
 	if (web_mode)
 	{
-		uint8_t my_stage = GameStage.GetOrDefault();
-		my_move = (my_stage == STAGE_GAME_MY_TURN);
-
-		uint8_t oth_stage;
-		if (winner && !GameStage.Get(oth_stage, opp_id))
-		{
-			scene_manager->SwitchScene(Battleship_Scene::MAIN);
-			return;
-		}
-
-		if (!my_move)
-		{
-			cursor.SetActive(false);
-
-			uint8_t request = Request.GetOrDefault(opp_id);
-			//uint8_t response = Response.GetOrDefault(opp_id);
-
-			if (!request)
-				Response.Set(RESP_NONE);
-			else if (request == REQ_ATTACK)
-			{
-				// Логика выполняется 1 раз
-				if (!Response.GetOrDefault())
-				{
-					// .. Внутренняя логика my_field.Attack
-					uint8_t result = 0;
-					uint8_t row, col;
-					if (CursorRow.Get(row, opp_id) && CursorCol.Get(col, opp_id) && row && col)
-						result = static_cast<uint8_t>(my_field->Attack(row - 1, col - 1)) + 1;
-					Response.Set(result);
-				}
-			}
-			else if (request == REQ_YOUR_TURN)
-			{
-				Response.Set(RESP_NONE);
-				GameStage.Set(STAGE_GAME_MY_TURN);
-			}
-		}
-		else
-		{
-			uint8_t my_request = Request.GetOrDefault();
-			uint8_t response = Response.GetOrDefault(opp_id);
-			if (my_request == REQ_ATTACK && response)
-			{
-				if (response == RESP_ATTACK_POPAL ||
-					response == RESP_ATTACK_UBIL || 
-					response == RESP_ATTACK_MIMO)
-				{
-					BattleshipField::AttackResult res = (BattleshipField::AttackResult) (response - 1);
-					uint8_t row, col;
-					if (CursorRow.Get(row) && CursorCol.Get(col) && row && col)
-						opp_field->PutAttackResult(row - 1, col - 1, res);
-
-					Save();
-					if (res == BattleshipField::AttackResult::MIMO)
-					{
-						Request.Set(REQ_YOUR_TURN);
-						cursor.SetActive(false);
-					}
-					else
-					{
-						ShowResult(res);
-						Request.Set(REQ_NONE);
-					}
-
-					return;
-				}
-			}
-			else if (my_request == REQ_YOUR_TURN && 
-				GameStage.GetOrDefault(opp_id) == STAGE_GAME_MY_TURN)
-			{
-				Request.Set(REQ_NONE);
-				GameStage.Set(STAGE_GAME_OPP_TURN);
-				cursor.SetActive(false);
-				// Можно в принципе и сюда перенести - GameStage.Set(STAGE_GAME_OPP_TURN);
-			}
-		}
+		CheckStages();
 	}
 
 	opp_field->SetCursorActive(cursor.IsActive());
