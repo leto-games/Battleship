@@ -57,7 +57,7 @@ bool BattleshipGame::CustomInit()
 {
 	DrawFunctions::SetDefaultFont(IFont::FromHandle(leto_api_v1->Font->GetFont(8, 8, 0)));
 
-	//InitStickers(LoadedGameAllocator());
+	InitStickers(leto::globals::GetAllocator());
 	
 	my_field = leto_new BattleshipMyField;
 	opp_field = leto_new BattleshipOppField;

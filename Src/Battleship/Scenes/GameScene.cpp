@@ -424,6 +424,7 @@ static void DrawTextCenter(IScreen& screen, int y, StaticTextView text)
 
 #include <Battleship/Bitmaps/Bitmaps.hpp>
 #include <Graphics/ShiftScreen.hpp>
+#include <LetoFunctions/Draw.hpp>
 
 void GameScene::Draw(IScreen& _screen)
 {
@@ -485,10 +486,27 @@ void GameScene::Draw(IScreen& _screen)
 
 		int sin_motion = static_cast<int>(2 * leto_api_v1->Math->sinf(50 * progress));
 
+		/**
+		 * 
+		 * 
+            leto_api_v1->Graphics->DrawBitmap(IScreen::ToHandle(&screen), 15, 35, BM_Popal_Outlined_rotated, BlackColor, false);
+            leto_api_v1->Graphics->DrawBitmap(IScreen::ToHandle(&screen), 15, 35, BM_Popal_Big_rotated,      WhiteColor, false);
+            leto_api_v1->Graphics->DrawBitmap(IScreen::ToHandle(&screen), 95, 35, BM_Ubil_Outlined_rotated,  BlackColor, false);
+            leto_api_v1->Graphics->DrawBitmap(IScreen::ToHandle(&screen), 95, 35, BM_Ubil_Big_rotated,       WhiteColor, false);
+
+		 */
+
 		if (show_res == BattleshipField::AttackResult::POPAL)
-			DrawBitmap(screen, {6, progress < 0.25f ? 20 + sin_motion : 20}, BM_PopalText, WhiteColor, BlackColor);
+		{
+			leto_api_v1->Graphics->DrawBitmap(IScreen::ToHandle(&screen), 6, progress < 0.25f ? 20 + sin_motion : 20, BM_Popal_Sticker, BlackColor, false);
+			leto_api_v1->Graphics->DrawBitmap(IScreen::ToHandle(&screen), 6, progress < 0.25f ? 20 + sin_motion : 20, BM_Popal_Top, WhiteColor, false);
+
+		}
 		else if (show_res == BattleshipField::AttackResult::UBIL)
-			DrawBitmap(screen, {6, 20 + sin_motion}, BM_UbilText, WhiteColor, BlackColor);
+		{
+			leto_api_v1->Graphics->DrawBitmap(IScreen::ToHandle(&screen), 6, 20 + sin_motion, BM_Ubil_Sticker, BlackColor, false);
+			leto_api_v1->Graphics->DrawBitmap(IScreen::ToHandle(&screen), 6, 20 + sin_motion, BM_Ubil_Top, WhiteColor, false);
+		}
 	}
 
 	const IFont* font = IFont::FromHandle(leto_api_v1->Font->GetFont(7, 7, 1));

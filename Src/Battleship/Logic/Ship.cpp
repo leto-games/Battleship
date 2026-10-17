@@ -227,6 +227,7 @@ bool Ship::IsNearError(const Ship& ship) const
 #include "../Bitmaps/Bitmaps.hpp"
 #include <DrawFunctions/DrawRectangle.hpp>
 #include <DrawFunctions/DrawBitmap.hpp>
+#include <LetoFunctions/Draw.hpp>
 
 void Ship::Draw(IScreen& screen, Point2_i offset)
 {
@@ -258,8 +259,13 @@ void Ship::Draw(IScreen& screen, Point2_i offset)
 		short row, col;
 		GetShipCellCoord(i, row, col);
 
+		Point2_i p = offset + Point2_i{col * scale, row * scale};
+
 		if (GetShipState(i) == STATE::FIRED_ME)
-			DrawBitmap(screen, offset + Point2_i{col * scale, row * scale}, BM_DeadCell, WhiteColor, BlackColor);
+		{
+			leto_api_v1->Graphics->DrawRect(IScreen::ToHandle(&screen), p.x, p.y, BM_DeadCell.width, BM_DeadCell.height, 0, WhiteColor);
+			leto_api_v1->Graphics->DrawBitmap(IScreen::ToHandle(&screen), p.x, p.y, BitmapData::ToHandle(&BM_DeadCell), BlackColor, true);
+		}
 	}
 }
 
