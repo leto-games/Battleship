@@ -26,6 +26,12 @@ jobs:
     - name: Set up ARM GCC (Linux)
       if: runner.os == 'Linux'
       uses: carlosperate/arm-none-eabi-gcc-action@v1
+      with:
+        # Pinned instead of 'latest': ARM re-uploaded the 15.3.Rel2 tarball
+        # with different contents, so the action's recorded sha256 for it
+        # no longer matches and downloads fail checksum verification.
+        # https://github.com/carlosperate/arm-none-eabi-gcc-action/issues/111
+        release: '15.3.Rel1'
 
     - name: Set up MSVC Developer Command Prompt (Windows)
       if: runner.os == 'Windows'
