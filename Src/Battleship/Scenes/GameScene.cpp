@@ -419,7 +419,7 @@ static void DrawTextCenter(IScreen& screen, int y, StaticTextView text)
 {
 	using namespace DrawFunctions;
 
-	DrawText(screen, {64 - TextWidth(text) / 2, y}, text);
+	DrawString(screen, {64 - TextWidth(text) / 2, y}, text);
 }
 
 #include <Battleship/Bitmaps/Bitmaps.hpp>
@@ -443,7 +443,7 @@ void GameScene::Draw(IScreen& _screen)
 //
 	//	text = "РЕВАНШ?";
 	//	DrawTextCenter(screen, 8, text);
-	//	//DrawText(screen, {64 - TextWidth(text) / 2, 8}, text);
+	//	//DrawString(screen, {64 - TextWidth(text) / 2, 8}, text);
 	//	revanche_answer.Draw(screen);
 	//	return;
 	//}
@@ -453,10 +453,10 @@ void GameScene::Draw(IScreen& _screen)
 //
 	//	text = "ЖДЕМ";
 	//	DrawTextCenter(screen, 24, text);
-	//	//DrawText(screen, {64 - TextWidth(text) / 2, 24}, text);
+	//	//DrawString(screen, {64 - TextWidth(text) / 2, 24}, text);
 	//	text = "ОТВЕТА";
 	//	DrawTextCenter(screen, 32, text);
-	//	//DrawText(screen, {64 - TextWidth(text) / 2, 32}, text);
+	//	//DrawString(screen, {64 - TextWidth(text) / 2, 32}, text);
 	//	return;
 	//}
 
@@ -471,7 +471,7 @@ void GameScene::Draw(IScreen& _screen)
 		if (winner != 0)
 		{
 			text = (winner == 1) ? "ВЫ ВЫИГРАЛИ" : "ВЫ ПРОИГРАЛИ";
-			DrawText(screen, {64 - TextWidth(text) / 2, 4}, text, WhiteColor, BlackColor, true);
+			DrawString(screen, {64 - TextWidth(text) / 2, 4}, text, WhiteColor, BlackColor, true);
 		}
 		return;
 	}
@@ -518,11 +518,11 @@ void GameScene::Draw(IScreen& _screen)
 			DrawWaitLines(screen);
 
 			text = "СВЯЗЬ С";
-			DrawText(screen, {64 - TextWidth(text) / 2, 20}, text, WhiteColor, BlackColor, false, font);
+			DrawString(screen, {64 - TextWidth(text) / 2, 20}, text, WhiteColor, BlackColor, false, font);
 			text = opp_name;
-			DrawText(screen, {64 - TextWidth(text) / 2, 28}, text, WhiteColor, BlackColor, true, font);
+			DrawString(screen, {64 - TextWidth(text) / 2, 28}, text, WhiteColor, BlackColor, true, font);
 			text = "ПОТЕРЯНА";
-			DrawText(screen, {64 - TextWidth(text) / 2, 36}, text, WhiteColor, BlackColor, false, font);
+			DrawString(screen, {64 - TextWidth(text) / 2, 36}, text, WhiteColor, BlackColor, false, font);
 			return;
 
 		}
@@ -531,11 +531,11 @@ void GameScene::Draw(IScreen& _screen)
 			DrawWaitLines(screen);
 
 			text = "ЖДЕМ";
-			DrawText(screen, {64 - TextWidth(text) / 2, 20}, text, WhiteColor, BlackColor, false, font);
+			DrawString(screen, {64 - TextWidth(text) / 2, 20}, text, WhiteColor, BlackColor, false, font);
 			text = "ИГРУ С";
-			DrawText(screen, {64 - TextWidth(text) / 2, 28}, text, WhiteColor, BlackColor, false, font);
+			DrawString(screen, {64 - TextWidth(text) / 2, 28}, text, WhiteColor, BlackColor, false, font);
 			text = opp_name;
-			DrawText(screen, {64 - TextWidth(text) / 2, 36}, text, WhiteColor, BlackColor, true, font);
+			DrawString(screen, {64 - TextWidth(text) / 2, 36}, text, WhiteColor, BlackColor, true, font);
 			return;
 		}
 	}

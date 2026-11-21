@@ -92,8 +92,8 @@ void BattleshipGame::Draw(IScreen &screen)
 {
 	BaseGame::Draw(screen);
 
-	DrawFunctions::DrawText(screen, {0,0}, to_text(Battleship::GameStage.GetOrDefault()));
-	DrawFunctions::DrawText(screen, {0,10}, to_text(Battleship::GameStage.GetOrDefault(Battleship::opp_id)));
+	DrawFunctions::DrawString(screen, {0,0}, to_text(Battleship::GameStage.GetOrDefault()));
+	DrawFunctions::DrawString(screen, {0,10}, to_text(Battleship::GameStage.GetOrDefault(Battleship::opp_id)));
 }
 
 BattleshipGame* GameInstance = nullptr;

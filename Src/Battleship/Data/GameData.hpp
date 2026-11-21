@@ -12,8 +12,6 @@
 
 #include "BattleshipSave.hpp"
 #include "../Logic/BattleshipField.hpp"
-#include <Web/WebRequest.hpp>
-#include <Storage/NamedDataCell.hpp>
 //#include <Storage/NamedSpace.hpp>
 #include <Data/StaticText.hpp>
 #include <Data/SourceCell.hpp>
