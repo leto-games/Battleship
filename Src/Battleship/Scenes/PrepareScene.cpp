@@ -395,7 +395,7 @@ void PlaceShipsScene::Draw(IScreen& _screen)
 		if (!can_place)
 		{
 			text = "БЛИЗКО!";
-			DrawText(screen, { 96 - TextWidth(text, font) / 2, 26 }, text, WhiteColor, BlackColor, true, font);
+			DrawString(screen, { 96 - TextWidth(text, font) / 2, 26 }, text, WhiteColor, BlackColor, true, font);
 
 			if (!ship_blink.Expired())
 			{
@@ -415,21 +415,21 @@ void PlaceShipsScene::Draw(IScreen& _screen)
 		}
 
 		text = state == PlaceState::PLACE_SHIP ? "РАЗМЕСТИ" : "ПЕРЕМЕСТИ";
-		DrawText(screen, {96 - TextWidth(text, font) / 2, 4}, text, WhiteColor, BlackColor, false, font);
+		DrawString(screen, {96 - TextWidth(text, font) / 2, 4}, text, WhiteColor, BlackColor, false, font);
 		text = "КОРАБЛЬ";
-		DrawText(screen, {96 - TextWidth(text, font) / 2, 12}, text, WhiteColor, BlackColor, false, font);
+		DrawString(screen, {96 - TextWidth(text, font) / 2, 12}, text, WhiteColor, BlackColor, false, font);
 
 		text = "ОТМЕНА";
-		DrawText(screen, {68, 40}, text, WhiteColor, BlackColor, false, font);
+		DrawString(screen, {68, 40}, text, WhiteColor, BlackColor, false, font);
 
 		button_helper.Draw(screen, {68 + 2 + TextWidth(text, font), 40 - 1});
 	}
 	else if (state == PlaceState::ASK_LOAD_MEMORY)
 	{
 		text = "ОБНАРУЖЕНО";
-		DrawText(screen, {64 - TextWidth(text, font) / 2, 10}, text, WhiteColor, BlackColor, false, font);
+		DrawString(screen, {64 - TextWidth(text, font) / 2, 10}, text, WhiteColor, BlackColor, false, font);
 		text = "СОХРАНЕНИЕ";
-		DrawText(screen, {64 - TextWidth(text, font) / 2, 18}, text, WhiteColor, BlackColor, false, font);
+		DrawString(screen, {64 - TextWidth(text, font) / 2, 18}, text, WhiteColor, BlackColor, false, font);
 		load_memory_menu.Draw(screen);
 		delete_loaded_memory.Draw(screen, {64, 0});
 		return;
@@ -437,12 +437,12 @@ void PlaceShipsScene::Draw(IScreen& _screen)
 	else if (state == PlaceState::CHOOSE_EDIT_SHIP)
 	{
 		text = "ВЫБЕРИ";
-		DrawText(screen, {96 - TextWidth(text, font) / 2, 4}, text, WhiteColor, BlackColor, false, font);
+		DrawString(screen, {96 - TextWidth(text, font) / 2, 4}, text, WhiteColor, BlackColor, false, font);
 		text = "КОРАБЛЬ";
-		DrawText(screen, {96 - TextWidth(text, font) / 2, 12}, text, WhiteColor, BlackColor, false, font);
+		DrawString(screen, {96 - TextWidth(text, font) / 2, 12}, text, WhiteColor, BlackColor, false, font);
 
 		text = "ОТМЕНА";
-		DrawText(screen, {68, 40}, text, WhiteColor, BlackColor, false, font);
+		DrawString(screen, {68, 40}, text, WhiteColor, BlackColor, false, font);
 
 		button_helper.Draw(screen, {68 + 2 + TextWidth(text, font), 40 - 1});
 	}
