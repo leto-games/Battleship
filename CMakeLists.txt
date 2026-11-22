@@ -21,7 +21,7 @@ if("${PRESET_DEFINE_MACRO}" STREQUAL "__STM32__")
 else()
 	project("Battleship" C CXX)
 	add_library("${PROJECT_NAME}" SHARED "${C_CPP_COURCES}")
-	if(DEFINED ENV{LETO_PATH})
+	if(WIN32 AND DEFINED ENV{LETO_PATH})
 		target_compile_definitions(${PROJECT_NAME} PRIVATE LETOCORE_SHARED)
 	endif()
 endif()
@@ -82,30 +82,26 @@ elseif (${PRESET_DEFINE_MACRO} STREQUAL "__WIN__")
 
 	#target_link_libraries("${PROJECT_NAME}" PRIVATE STM32F4_Libraries)
 
-elseif (${PRESET_DEFINE_MACRO} STREQUAL "__LINUX__")
-
-	#find_package(Qt6 COMPONENTS Widgets REQUIRED Core)
-	#qt_standard_project_setup()
-	#add_executable ("${PROJECT_NAME}" "Main/App.cpp" "${CPP_COURCES}")
-	#target_link_libraries("${PROJECT_NAME}" PRIVATE Qt6::Core Qt6::Widgets)
-
-elseif (${PRESET_DEFINE_MACRO} STREQUAL "__TERMUX__")
-
-	#add_library("${PROJECT_NAME}" SHARED "${CPP_COURCES}")
-
-	#target_link_libraries("${PROJECT_NAME}" PRIVATE STM32F4_Libraries)
-	set_target_properties("${PROJECT_NAME}" PROPERTIES POSITION_INDEPENDENT_CODE ON)
-
 endif ()
 
 if(DEFINED ENV{LETO_PATH})
     message(STATUS "[${PROJECT_NAME}] Найдена переменная окружения LETO_PATH. Подключаем готовые артефакты...")
 
-	add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy_directory
-		"${CMAKE_RUNTIME_OUTPUT_DIRECTORY}"
-		"$ENV{LETO_PATH}/Apps/${CMAKE_PRESET_NAME}/${PROJECT_NAME}/"
-	)
+	if("${PRESET_DEFINE_MACRO}" STREQUAL "__STM32__")
+		add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy_directory
+			"${CMAKE_RUNTIME_OUTPUT_DIRECTORY}"
+			"$ENV{LETO_PATH}/Apps/${CMAKE_PRESET_NAME}/${PROJECT_NAME}/"
+		)
+	else()
+		add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+			COMMAND ${CMAKE_COMMAND} -E make_directory
+			"$ENV{LETO_PATH}/Apps/${CMAKE_PRESET_NAME}/${PROJECT_NAME}/"
+			COMMAND ${CMAKE_COMMAND} -E copy
+			"$<TARGET_FILE:${PROJECT_NAME}>"
+			"$ENV{LETO_PATH}/Apps/${CMAKE_PRESET_NAME}/${PROJECT_NAME}/"
+		)
+	endif()
 
 	set(LIB_DIR "$ENV{LETO_PATH}/Common/${CORE_BUILD_PRESET}/lib")
 	set(BIN_DIR "$ENV{LETO_PATH}/Common/${CORE_BUILD_PRESET}/bin")
@@ -142,7 +138,6 @@ if(DEFINED ENV{LETO_PATH})
 		set_target_properties(LetoCore PROPERTIES
 			IMPORTED_LOCATION "${LIB_DIR}/${LIB_PREFIX}LetoCore.${LIB_EXT}"
 			INTERFACE_INCLUDE_DIRECTORIES "$ENV{LETO_PATH}/LetoCore/include"
-			INTERFACE_COMPILE_DEFINITIONS "LETOCORE_SHARED" # макрос привязан к библиотеке!
 		)
     endif()
 else()
