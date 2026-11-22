@@ -56,7 +56,8 @@
             "cacheVariables": {
                 "CMAKE_C_COMPILER": "gcc",
                 "CMAKE_CXX_COMPILER": "g++",
-                "PRESET_DEFINE_MACRO": "__LINUX__"
+                "PRESET_DEFINE_MACRO": "__LINUX__",
+                "CMAKE_POSITION_INDEPENDENT_CODE": "ON"
             }
         },
         {
