@@ -21,7 +21,7 @@ if("${PRESET_DEFINE_MACRO}" STREQUAL "__STM32__")
 else()
 	project("Battleship" C CXX)
 	add_library("${PROJECT_NAME}" SHARED "${C_CPP_COURCES}")
-	if(DEFINED ENV{LETO_PATH})
+	if(WIN32 AND DEFINED ENV{LETO_PATH})
 		target_compile_definitions(${PROJECT_NAME} PRIVATE LETOCORE_SHARED)
 	endif()
 endif()
@@ -94,7 +94,6 @@ elseif (${PRESET_DEFINE_MACRO} STREQUAL "__TERMUX__")
 	#add_library("${PROJECT_NAME}" SHARED "${CPP_COURCES}")
 
 	#target_link_libraries("${PROJECT_NAME}" PRIVATE STM32F4_Libraries)
-	set_target_properties("${PROJECT_NAME}" PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 endif ()
 
@@ -152,7 +151,6 @@ if(DEFINED ENV{LETO_PATH})
 		set_target_properties(LetoCore PROPERTIES
 			IMPORTED_LOCATION "${LIB_DIR}/${LIB_PREFIX}LetoCore.${LIB_EXT}"
 			INTERFACE_INCLUDE_DIRECTORIES "$ENV{LETO_PATH}/LetoCore/include"
-			INTERFACE_COMPILE_DEFINITIONS "LETOCORE_SHARED" # макрос привязан к библиотеке!
 		)
     endif()
 else()
