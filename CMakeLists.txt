@@ -157,4 +157,6 @@ target_link_libraries("${PROJECT_NAME}" PUBLIC LetoAPI LetoCore)
 install(TARGETS ${PROJECT_NAME}
     RUNTIME DESTINATION bin
 	COMPONENT app
+    LIBRARY DESTINATION lib
+	COMPONENT app
 )
