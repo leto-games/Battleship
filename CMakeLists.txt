@@ -82,19 +82,6 @@ elseif (${PRESET_DEFINE_MACRO} STREQUAL "__WIN__")
 
 	#target_link_libraries("${PROJECT_NAME}" PRIVATE STM32F4_Libraries)
 
-elseif (${PRESET_DEFINE_MACRO} STREQUAL "__LINUX__")
-
-	#find_package(Qt6 COMPONENTS Widgets REQUIRED Core)
-	#qt_standard_project_setup()
-	#add_executable ("${PROJECT_NAME}" "Main/App.cpp" "${CPP_COURCES}")
-	#target_link_libraries("${PROJECT_NAME}" PRIVATE Qt6::Core Qt6::Widgets)
-
-elseif (${PRESET_DEFINE_MACRO} STREQUAL "__TERMUX__")
-
-	#add_library("${PROJECT_NAME}" SHARED "${CPP_COURCES}")
-
-	#target_link_libraries("${PROJECT_NAME}" PRIVATE STM32F4_Libraries)
-
 endif ()
 
 if(DEFINED ENV{LETO_PATH})
