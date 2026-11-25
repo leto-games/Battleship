@@ -57,9 +57,7 @@
                 "CMAKE_C_COMPILER": "gcc",
                 "CMAKE_CXX_COMPILER": "g++",
                 "PRESET_DEFINE_MACRO": "__LINUX__",
-                "CMAKE_POSITION_INDEPENDENT_CODE": "ON",
-                "CMAKE_C_FLAGS": "-fno-gnu-unique",
-                "CMAKE_CXX_FLAGS": "-fno-gnu-unique"
+                "CMAKE_POSITION_INDEPENDENT_CODE": "ON"
             }
         },
         {

@@ -26,6 +26,14 @@ else()
 	endif()
 endif()
 
+# glibc never unmaps a DSO that exports STB_GNU_UNIQUE symbols, and GCC emits them
+# for local statics in inline and template code. AppLoader closes game libraries
+# with dlclose, so the game may not carry such symbols. GNU only: AppleClang and
+# MSVC reject the flag, and Mach-O has no STB_GNU_UNIQUE.
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        target_compile_options(${PROJECT_NAME} PRIVATE -fno-gnu-unique)
+endif()
+
 target_include_directories(${PROJECT_NAME} PUBLIC 
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Src>
     $<INSTALL_INTERFACE:Src>
