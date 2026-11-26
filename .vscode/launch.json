@@ -19,6 +19,39 @@
             "environment": [],
             "console": "internalConsole",
             "preLaunchTask": "CMake: build"
+        },
+        {
+            "name": "(gdb) Linux debug",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${env:LETO_PATH}/Console/linux-st7735-debug/bin/leto-console",
+            "args": [
+                "--user", "0",
+                "--game", 
+                "${env:LETO_PATH}/Apps/linux-debug/${input:CMakeProjectName}/lib${input:CMakeProjectName}.so"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${env:LETO_PATH}/Console/linux-st7735-debug/bin/",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Set Disassembly Flavor to Intel",
+                    "text": "-gdb-set disassembly-flavor intel",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Pending breakpoints for dlopen'd game lib",
+                    "text": "-gdb-set breakpoint pending on", 
+                    "ignoreFailures": true 
+                }
+            ]
         }
     ],
     "inputs": [
